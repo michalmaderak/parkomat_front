@@ -1,18 +1,19 @@
-// src/api/axiosClient.ts
 import axios from "axios";
-
+const token = localStorage.getItem("accessToken");
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, 
-  // Ustaw tu bazowy adres backendu (np. /api) jeśli Spring wystawia taką ścieżkę
+  baseURL: "http://localhost:8080/api",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: token ? `Bearer ${token}` : "",
+  },
 });
 
-// Opcjonalnie dodaj interceptor do automatycznego dołączania tokena JWT
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
-  if (token && config.headers) {
+  if (token && token.includes(".")) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
-
 export default axiosClient;

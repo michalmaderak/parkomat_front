@@ -1,64 +1,108 @@
 // src/pages/RegisterPage/RegisterPage.tsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { authApi } from '../../api/authApi';
-import ErrorMessage from '../../components/ErrorMessage/ErrorMessage';
-import styles from './RegisterPage.module.scss';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authApi } from "../../api/authApi";
+import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
+import styles from "./RegisterPage.module.scss";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
-  const [login, setLogin] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+    nip: "",
+    accountNumber: ""
+  });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const validate = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!login.trim()) {
-      newErrors.login = 'Login jest wymagany.';
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "Imię jest wymagane.";
     }
 
-    if (!email.trim()) {
-      newErrors.email = 'Email jest wymagany.';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Nieprawidłowy format email.';
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Nazwisko jest wymagane.";
     }
 
-    if (!password) {
-      newErrors.password = 'Hasło jest wymagane.';
-    } else if (password.length < 6) {
-      newErrors.password = 'Hasło musi mieć co najmniej 6 znaków.';
+    if (!formData.email.trim()) {
+      newErrors.email = "Email jest wymagany.";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Nieprawidłowy format email.";
     }
 
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'Powtórzenie hasła jest wymagane.';
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Hasła muszą być identyczne.';
+    if (!formData.password) {
+      newErrors.password = "Hasło jest wymagane.";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Hasło musi mieć co najmniej 8 znaków.";
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Powtórzenie hasła jest wymagane.";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Hasła muszą być identyczne.";
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = "Numer telefonu jest wymagany.";
+    }
+
+    if (!formData.nip) {
+      newErrors.nip = "NIP jest wymagany.";
+    } else if (!/^\d{10}$/.test(formData.nip)) {
+      newErrors.nip = "NIP musi składać się z 10 cyfr.";
+    }
+
+    if (!formData.accountNumber) {
+      newErrors.accountNumber = "Numer konta jest wymagany.";
+    } else if (!/^\d{26}$/.test(formData.accountNumber)) {
+      newErrors.accountNumber = "Numer konta musi składać się z 26 cyfr.";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({}); // Reset błędów
+    setErrors({});
 
     if (!validate()) return;
 
     try {
-      await authApi.register({ login, email, password });
-      alert('Rejestracja udana. Możesz się teraz zalogować.');
-      navigate('/login');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await authApi.register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        nip: formData.nip,
+        accountNumber: formData.accountNumber
+      });
+      alert("Rejestracja udana. Możesz się teraz zalogować.");
+      navigate("/login");
     } catch (error: any) {
-      // Obsługa błędów z backendu
       if (error.response && error.response.data) {
-        setErrors(error.response.data.errors || { general: 'Błąd rejestracji. Spróbuj ponownie.' });
+        setErrors(
+          error.response.data.errors || {
+            general: "Błąd rejestracji. Spróbuj ponownie."
+          }
+        );
       } else {
-        setErrors({ general: 'Błąd rejestracji. Spróbuj ponownie.' });
+        setErrors({ general: "Błąd rejestracji. Spróbuj ponownie." });
       }
     }
   };
@@ -68,51 +112,109 @@ const RegisterPage: React.FC = () => {
       <h2>Rejestracja</h2>
       <form onSubmit={handleRegister} className={styles.form}>
         <div className={styles.formGroup}>
-          <label>Login:</label>
+          <label>Imię *</label>
           <input
             type="text"
-            value={login}
-            onChange={(e) => setLogin(e.target.value)}
-            required
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
             className={styles.input}
           />
-          {errors.login && <ErrorMessage message={errors.login} />}
+          {errors.firstName && <ErrorMessage message={errors.firstName} />}
         </div>
+
         <div className={styles.formGroup}>
-          <label>Email:</label>
+          <label>Nazwisko *</label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          {errors.lastName && <ErrorMessage message={errors.lastName} />}
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>E-mail *</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
             className={styles.input}
           />
           {errors.email && <ErrorMessage message={errors.email} />}
         </div>
+
         <div className={styles.formGroup}>
-          <label>Hasło:</label>
+          <label>Hasło *</label>
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
             className={styles.input}
           />
           {errors.password && <ErrorMessage message={errors.password} />}
         </div>
+
         <div className={styles.formGroup}>
-          <label>Powtórz hasło:</label>
+          <label>Powtórz hasło *</label>
           <input
             type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
             className={styles.input}
           />
-          {errors.confirmPassword && <ErrorMessage message={errors.confirmPassword} />}
+          {errors.confirmPassword && (
+            <ErrorMessage message={errors.confirmPassword} />
+          )}
         </div>
+
+        <div className={styles.formGroup}>
+          <label>Nr. telefonu *</label>
+          <input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          {errors.phone && <ErrorMessage message={errors.phone} />}
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>NIP *</label>
+          <input
+            type="text"
+            name="nip"
+            value={formData.nip}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          {errors.nip && <ErrorMessage message={errors.nip} />}
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Nr. konta *</label>
+          <input
+            type="text"
+            name="accountNumber"
+            value={formData.accountNumber}
+            onChange={handleChange}
+            className={styles.input}
+          />
+          {errors.accountNumber && (
+            <ErrorMessage message={errors.accountNumber} />
+          )}
+        </div>
+
         {errors.general && <ErrorMessage message={errors.general} />}
-        <button type="submit" className={styles.button}>Zarejestruj</button>
+        <button type="submit" className={styles.button}>
+          Zarejestruj się
+        </button>
       </form>
     </div>
   );

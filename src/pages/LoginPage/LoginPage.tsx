@@ -1,25 +1,34 @@
 // src/pages/LoginPage/LoginPage.tsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { authApi } from '../../api/authApi';
-import ErrorMessage from '../../components/ErrorMessage/ErrorMessage';
-import styles from './Login.Page.module.scss';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authApi } from "../../api/authApi";
+import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
+import styles from "./Login.Page.module.scss";
+import { useAuth } from "../../context/AuthContext";
 
 const LoginPage: React.FC = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Reset błędu
+    setError("");
     try {
-      const data = await authApi.login({ email, password });
-      localStorage.setItem('accessToken', data.token);
-      navigate('/transactions');
-    } catch (error: unknown) {
-      setError('Błąd logowania. Sprawdź swoje dane.' + error);
+      const response = await authApi.login({ email, password });
+      
+      // Make sure the response contains a token
+      if (!response.token) {
+        throw new Error("Brak tokenu w odpowiedzi serwera");
+      }
+      
+      login(response.token);
+      navigate("/transactions");
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setError(typeof error === 'string' ? error : error.message || "Wystąpił błąd podczas logowania");
     }
   };
 
@@ -29,26 +38,28 @@ const LoginPage: React.FC = () => {
       <form onSubmit={handleLogin} className={styles.form}>
         <div className={styles.formGroup}>
           <label>Email:</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             className={styles.input}
           />
           {error && <ErrorMessage message={error} />}
         </div>
         <div className={styles.formGroup}>
           <label>Hasło:</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
             className={styles.input}
           />
         </div>
-        <button type="submit" className={styles.button}>Zaloguj</button>
+        <button type="submit" className={styles.button}>
+          Zaloguj
+        </button>
       </form>
     </div>
   );
