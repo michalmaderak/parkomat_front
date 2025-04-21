@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../../api/authApi';
 import ErrorMessage from '../../components/ErrorMessage/ErrorMessage';
-import styles from './Login.Page.module.scss';
+import styles from './ParkPage.module.scss';
 
-const LoginPage: React.FC = () => {
+const ParkPage: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Logowanie</h2>
+      <h2 className={styles.title}>Zalogowano</h2>
       <form onSubmit={handleLogin} className={styles.form}>
         <div className={styles.formGroup}>
           <label>Email:</label>
@@ -54,4 +54,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default ParkPage;

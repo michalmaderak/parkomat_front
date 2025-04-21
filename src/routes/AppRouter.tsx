@@ -8,6 +8,7 @@ import Navbar from "../components/Navbar/Navbar";
 import RegisterPage from "../pages/RegisterPage/RegisterPage";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import HomePage from "../components/HomePage/HomePage";
+import ParkPage from "../pages/ParkPage/ParkPage";
 
 const App: React.FC = () => {
   return (
@@ -19,6 +20,7 @@ const App: React.FC = () => {
           <Route path="/test" element={<TestApiComponent />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/parkpage" element={<ParkPage />} />
         </Routes>
       </div>
       <ToastContainer />
