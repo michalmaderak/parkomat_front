@@ -1,72 +1,104 @@
-@use "../../styles/variables" as *;
+// src/components/Navbar/Navbar.module.scss
+@use "../../styles/variables" as *; // Upewnij się, że ścieżka jest poprawna
 @use "sass:color";
 
 .navbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
+  justify-content: space-between; // Rozsuwa grupę logo i linki autoryzacji na boki
+  align-items: center; // Wyrównuje je pionowo do środka
+  // Użyj paddingu, aby uzyskać odstęp od krawędzi przeglądarki
+  padding: 0.5rem 220px; // Zachowano duży padding poziomy zgodnie z oryginałem
+                        // Zmniejszono padding pionowy dla lepszego dopasowania do wysokości
   background-color: $primary-color;
   color: white;
-  padding-left: 220px;
-  height: 100px;
-  padding-right: 220px;
+  height: 100px; // Zachowano wysokość
+  box-sizing: border-box; // Aby padding wliczał się w wysokość
+}
 
-  .logoImage{
-    width: 90px;
-    height: 90px;
-  }
-  .logo {
-    font-size: 32px;
-    font-weight: bold;
-    width: 20%;
-    min-width: 400px;
-    //font-family: Ubuntu;
-    
-    a {
-      text-decoration: none;
-      color: white;
-    }
-  }
-  .logoSub{
-    font-size: 20px;
-    font-weight: 1%;
-    width: 20%;
-    min-width: 400px;
-    //font-family: Ubuntu;
-    
-    a {
-      text-decoration: none;
-      color: white;
-    }
-    font-style: italic;
-  }
+// --- Lewa Strona: Grupa Logo ---
+.logoGroup {
+  display: flex; // Układa obrazek i kontener tekstu obok siebie
+  align-items: center; // Wyrównuje je pionowo
+  gap: 15px; // Odstęp między obrazkiem a tekstem
+  text-decoration: none; // Usuwa podkreślenie z linku
+  color: white; // Ustawia domyślny kolor tekstu linku
+}
+.separator {
+  width: 1px;
+  height: 40px;
+  background-color: white;
+  opacity: 0.5;
+  margin: 0 1rem;
+}
+.logoImage {
+  height: 75px; // Dostosuj rozmiar logo wg potrzeb
+  width: auto; // Zachowaj proporcje
+  display: block; // Uniknięcie potencjalnych problemów z marginesem pod obrazkiem
+}
 
-  ul {
-    width: 100%;
-    
-    display: flex;
-    column-gap: 1rem;
-    justify-content: right;
-    .nav-container {
-      display: flex;
-      column-gap: 1rem;
-    }
+.logoTextContainer {
+  display: flex;
+  flex-direction: column; // Tytuł nad podtytułem
+}
 
-    li {
-      a {
-        text-decoration: none;
-        color: white;
-        font-weight: 600;
-        transition: 0.3s;
+.logoTitle {
+  font-size: 28px; // Dostosuj
+  font-weight: bold;
+  margin: 0; // Usuń domyślne marginesy
+  line-height: 1.1; // Zmniejsz interlinię
+}
 
-        &:hover {
-          color: color.scale($primary-color, $lightness: 20%);
-        }
-      }
-    }
+.logoSubtitle {
+  font-size: 16px; // Dostosuj
+  font-weight: 300; // Cieńsza czcionka
+  margin: 0; // Usuń domyślne marginesy
+  font-style: italic;
+  line-height: 1.1;
+}
+
+// --- Prawa Strona: Linki Autoryzacji ---
+.authLinks {
+  display: flex; // Układa elementy (Logowanie, Rejestracja itp.) obok siebie
+  align-items: center; // Wyrównuje je pionowo
+  gap: 35px; // Odstęp między poszczególnymi elementami (np. Logowanie a Rejestracja)
+}
+
+.authItem {
+  display: flex;
+  flex-direction: column; // Układa ikonę NAD tekstem
+  align-items: center; // Wyśrodkowuje ikonę i tekst w poziomie
+  gap: 6px; // Odstęp między ikoną a tekstem pod nią
+  color: white;
+  text-decoration: none;
+  font-weight: 500; // Średnia grubość
+  transition: opacity 0.2s ease-in-out; // Efekt dla najechania
+  cursor: pointer; // Wskazuje interaktywność
+
+  &:hover {
+    opacity: 0.8; // Lekkie przygaszenie przy najechaniu
+    // Alternatywnie zmiana koloru:
+    // color: color.scale($primary-color, $lightness: 40%);
   }
-  li{
-    list-style: none;
-  }
+}
+
+.authIcon {
+  height: 32px; // Rozmiar ikon
+  width: 32px;
+}
+
+.authText {
+  font-size: 0.8rem; // Mniejszy rozmiar tekstu pod ikoną
+  text-align: center; // Wyśrodkowanie tekstu (choć flex align-items już to robi)
+  line-height: 1; // Zmniejsz interlinię tekstu
+}
+
+// Resetowanie stylów dla przycisku wylogowania, aby wyglądał jak link
+.logoutButton {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit; // Dziedzicz czcionkę
+  color: inherit; // Dziedzicz kolor
+  cursor: pointer;
 }
