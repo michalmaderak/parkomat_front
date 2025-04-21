@@ -20,7 +20,7 @@ const customIcon = new L.Icon({
 
 const MapComponent: React.FC<MapComponentProps> = ({ markers }) => {
   return (
-    <MapContainer center={[52.237, 19.017]} zoom={6} dragging={false} zoomControl={false} scrollWheelZoom={false} style={{ height: "600px", width: "600px" }}>
+    <MapContainer center={[52.05, 19.017]} zoom={7} dragging={false} zoomControl={false} scrollWheelZoom={false} style={{ height: "900px", width: "900px" }}>
       <TileLayer
         url="http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'

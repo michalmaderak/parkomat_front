@@ -56,7 +56,6 @@ const HomePage: React.FC = () => {
     // Główny kontener dla strony
     <div className={styles.homePageContainer}>
       {/* Tytuł strony */}
-      <h1 className={styles.pageTitle}>Park-o-mat - Znajdź swój parking</h1>
 
       {/* Kontener dla dwukolumnowego layoutu */}
       <div className={styles.contentWrapper}>
@@ -73,12 +72,16 @@ const HomePage: React.FC = () => {
           ) : (
             <ul className={styles.parkList}>
               {parks.map(park => (
-                <li key={park.id} className={styles.parkListItem}>
-                  {/* Możesz dodać logo jeśli jest w danych Park */}
-                  {/* {park.park_logo_link && <img src={park.park_logo_link} alt={park.name} className={styles.parkListLogo}/>} */}
-                  <span className={styles.parkListName}>{park.name}</span>
-                  {/* Możesz dodać inne informacje, np. adres */}
-                  {/* <span className={styles.parkListAddress}>{park.address}</span> */}
+                <li key={park.id} className={styles.parkCard}>
+                  <div className={styles.parkText}>
+                    <h3 className={styles.parkName}>{park.name}</h3>
+                    <p className={styles.parkQuote}>"Dusza przyrody urok wzniosłości"</p>
+                  </div>
+                  <img
+                    src={park.parkLogoLink}
+                    alt={`Logo ${park.name}`}
+                    className={styles.parkLogo}
+                  />
                 </li>
               ))}
             </ul>
