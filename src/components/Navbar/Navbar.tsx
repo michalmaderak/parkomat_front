@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
           // --- Niezalogowany Użytkownik ---
           <>
           {/* Anulowanie rezerwacji */}
-          <Link to="/parkpage" className={styles.authItem}>
+          <Link to="/cancelreservationpage" className={styles.authItem}>
               <span className={styles.authText}>Zmiana planów?</span>
               <img src={cancelReservationIcon} alt="Moje Parkingi" className={styles.authIcon} />
               <span className={styles.authText}>anuluj rezerwację</span>

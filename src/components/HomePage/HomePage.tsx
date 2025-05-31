@@ -1,104 +1,93 @@
 // src/pages/HomePage/HomePage.tsx
 import React, { useEffect, useState } from "react";
-import styles from "./HomePage.module.scss"; // Zachowujemy lub tworzymy style dla HomePage
-import MapComponent from "../Map/Map"; // Popraw ścieżkę jeśli trzeba
+import { Link } from "react-router-dom"; // <--- 1. Zaimportuj Link
+import styles from "./HomePage.module.scss";
+import MapComponent from "../Map/Map";
 import { MarkerData } from "../../types/map";
 import { parksApi } from "../../api/parksApi";
-import { Park } from "../../types/parks"; // Upewnij się, że ten typ istnieje i jest poprawny
+import { Park } from "../../types/parks";
 
 const HomePage: React.FC = () => {
-  // Stan dla pełnych danych parków (dla listy)
   const [parks, setParks] = useState<Park[]>([]);
-  // Stan dla danych markerów (dla mapy)
   const [markers, setMarkers] = useState<MarkerData[]>([]);
-  // Stany ładowania i błędu, jak w TransactionsListPage
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const fetchParkData = async () => {
-      setIsLoading(true); // Rozpocznij ładowanie
-      setError(''); // Zresetuj błąd
+      setIsLoading(true);
+      setError('');
       try {
-        // Pobierz dane parków JEDEN RAZ
         const parkData: Park[] = await parksApi.getAll();
-        setParks(parkData); // Zapisz pełne dane dla listy
+        setParks(parkData);
 
-        // Przekształć dane parków na markery dla mapy
         const markerData: MarkerData[] = parkData.map((park: Park) => ({
           id: park.id,
-          popupText: park.name, // Tekst w popupie markera
+          popupText: park.name,
           position: [
             park.latitude,
             park.longitude
           ],
         }));
-        setMarkers(markerData); // Zapisz dane dla markerów
+        setMarkers(markerData);
 
-      } catch (err: unknown) { // Użyj unknown dla lepszego typowania błędów
+      } catch (err: unknown) {
         console.error("Błąd podczas pobierania danych parków:", err);
         let errorMessage = "Nie udało się pobrać danych parków.";
         if (err instanceof Error) {
           errorMessage += ` Błąd: ${err.message}`;
         }
         setError(errorMessage);
-        setParks([]); // Wyczyść dane w razie błędu
-        setMarkers([]); // Wyczyść markery w razie błędu
+        setParks([]);
+        setMarkers([]);
       } finally {
-        setIsLoading(false); // Zakończ ładowanie
+        setIsLoading(false);
       }
     };
 
     fetchParkData();
-  }, []); // Pusta tablica zależności - uruchom tylko raz po zamontowaniu
+  }, []);
 
   return (
-    // Główny kontener dla strony
     <div className={styles.homePageContainer}>
-      {/* Tytuł strony */}
-
-      {/* Kontener dla dwukolumnowego layoutu */}
       <div className={styles.contentWrapper}>
-
-        {/* Lewa kolumna: Lista Parków */}
         <div className={styles.parkListContainer}>
           <h2>Wybierz Park Narodowy</h2>
           {isLoading ? (
             <p>Ładowanie listy parków...</p>
           ) : error ? (
-            <p className={styles.error}>{error}</p> // Wyświetl błąd
+            <p className={styles.error}>{error}</p>
           ) : parks.length === 0 ? (
-            <p>Nie znaleziono żadnych parków.</p> // Obsługa braku danych
+            <p>Nie znaleziono żadnych parków.</p>
           ) : (
             <ul className={styles.parkList}>
               {parks.map(park => (
-                <li key={park.id} className={styles.parkCard}>
-                  <div className={styles.parkText}>
-                    <h3 className={styles.parkName}>{park.name}</h3>
-                    <p className={styles.parkQuote}>"Dusza przyrody urok wzniosłości"</p>
-                  </div>
-                  <img
-                    src={park.parkLogoLink}
-                    alt={`Logo ${park.name}`}
-                    className={styles.parkLogo}
-                  />
+                <li key={park.id} className={styles.parkListItem}> {/* Możesz dodać klasę dla <li> jeśli potrzeba osobnych styli */}
+                  <Link to={`/parkpage/${park.id}`} className={styles.parkCard}>
+                    <div className={styles.parkText}>
+                      <h3 className={styles.parkName}>{park.name}</h3>
+                      <p className={styles.parkQuote}>"Dusza przyrody urok wzniosłości"</p>
+                    </div>
+                    <img
+                      src={park.parkLogoLink}
+                      alt={`Logo ${park.name}`}
+                      className={styles.parkLogo}
+                    />
+                  </Link>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
-        {/* Prawa kolumna: Mapa */}
         <div className={styles.mapContainer}>
           {isLoading ? (
-            <p>Ładowanie mapy...</p> // Komunikat ładowania dla mapy
+            <p>Ładowanie mapy...</p>
           ) : error ? (
-            <p className={styles.error}>Nie można załadować mapy z powodu błędu.</p> // Komunikat błędu dla mapy
+            <p className={styles.error}>Nie można załadować mapy z powodu błędu.</p>
           ) : markers.length > 0 ? (
-             // Renderuj mapę tylko jeśli są markery i nie ma błędu/ładowania
             <MapComponent markers={markers} />
           ) : (
-             // Komunikat jeśli nie ma markerów (np. gdy parki nie mają koordynatów)
              !isLoading && <p>Brak danych do wyświetlenia na mapie.</p>
           )}
         </div>
