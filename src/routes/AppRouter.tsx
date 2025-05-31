@@ -9,7 +9,7 @@ import RegisterPage from "../pages/RegisterPage/RegisterPage";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import HomePage from "../components/HomePage/HomePage";
 import ParkPage from "../pages/ParkPage/ParkPage";
-import ParkingPage from "../pages/ParkingPage/ParkingPage";
+import ParkingDetailsPage from "../pages/ParkingPage/ParkingDetailsPage";
 import CancelReservationPage from "../pages/CancelReservationPage/CancelReservationPage";
 
 const App: React.FC = () => {
@@ -25,7 +25,7 @@ const App: React.FC = () => {
           
           <Route path="/parkpage/:parkId" element={<ParkPage />} />
           <Route path="/cancelreservationpage" element={<CancelReservationPage />} />
-          <Route path="/parking/:parkingId" element={<ParkingPage />} />
+           <Route path="/parking/:parkingId" element={<ParkingDetailsPage />} />
         </Routes>
       </div>
       <ToastContainer />

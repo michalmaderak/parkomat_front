@@ -1,0 +1,163 @@
+// src/pages/ParkingDetailsPage/ParkingDetailsPage.module.scss
+
+$primary-text-color: #333;
+$secondary-text-color: #555;
+$accent-color: #3A4F41; // Kolor z obrazka
+$background-light-gray: #f7f7f7; // Jaśniejsze tło
+$border-color: #e0e0e0;
+$error-color: #d32f2f;
+$error-background: #ffebee;
+$base-border-radius: 8px;
+$box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+.loadingMessage, .error {
+  padding: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: $error-color;
+  background-color: $error-background;
+  border: 1px solid lighten($error-color, 10%);
+  border-radius: $base-border-radius;
+}
+
+.parkingDetailsContainer {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: $base-border-radius;
+  box-shadow: $box-shadow-light;
+}
+
+.parkContext {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid $border-color;
+
+  .parkLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: $accent-color;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .parkContextLogo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-right: 15px;
+    border-radius: $base-border-radius / 2;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.parkingInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr; // Domyślnie jedna kolumna na mobilnych
+  gap: 30px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 2fr 1fr; // Dwie kolumny na większych ekranach (zdjęcie/opis, manager)
+  }
+}
+
+.parkingMedia {
+  h3 { // Nazwa parkingu
+    font-size: 1.9rem;
+    color: $primary-text-color;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+
+  .parkingImage {
+    width: 100%;
+    max-height: 400px; // Ogranicz wysokość zdjęcia
+    object-fit: cover; // Zdjęcie wypełni kontener, może być przycięte
+    border-radius: $base-border-radius;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+}
+
+.descriptionSection {
+  margin-top: 20px;
+  h4 {
+    font-size: 1.1rem;
+    color: $primary-text-color;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: $secondary-text-color;
+  }
+}
+
+.coordinates {
+  font-size: 0.9rem;
+  color: $secondary-text-color;
+  margin-top: 15px;
+  font-style: italic;
+}
+
+.managerInfo {
+  background-color: $background-light-gray;
+  padding: 20px;
+  border-radius: $base-border-radius;
+  border: 1px solid $border-color;
+
+  h4 {
+    font-size: 1.2rem;
+    color: $accent-color;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid lighten($border-color, 5%);
+  }
+
+  p {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    color: $secondary-text-color;
+    line-height: 1.5;
+
+    strong {
+      color: $primary-text-color;
+    }
+
+    a {
+      color: $accent-color;
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Opcjonalna sekcja rezerwacji
+// .reservationSection {
+//   margin-top: 30px;
+//   padding-top: 20px;
+//   border-top: 1px solid $border-color;
+//   h3 {
+//     font-size: 1.5rem;
+//     color: $primary-text-color;
+//     margin-bottom: 15px;
+//   }
+// }
