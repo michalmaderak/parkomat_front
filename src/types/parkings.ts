@@ -1,5 +1,5 @@
-import { Manager } from './manager'; // Zaimportuj typ Managera
-
+import { User } from './user'; // Zaimportuj typ Managera
+import { PlaceGroup } from './placeGroup'; // <--- IMPORTUJ NOWY TYP
 export interface Parking {
   parking_id: number; // lub string
   name: string;
@@ -10,5 +10,7 @@ export interface Parking {
   imageUrl?: string; // Link do zdjęcia parkingu
   description?: string; // Krótki opis parkingu
   manager_id?: number | null; // ID managera, jeśli jest przechowywane bezpośrednio
-  manager?: Manager | null; // Obiekt managera, jeśli jest zagnieżdżony lub pobierany osobno
+  manager?: User | null; // Obiekt managera, jeśli jest zagnieżdżony lub pobierany osobno
+
+   place_groups?: PlaceGroup[]; // <--- NOWE POLE
 }

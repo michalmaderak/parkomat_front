@@ -1,5 +1,5 @@
 // src/types/manager.ts (NOWY PLIK)
-export interface Manager {
+export interface User {
   manager_id: number; // lub string
   firstName: string;
   lastName: string;
