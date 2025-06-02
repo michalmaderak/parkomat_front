@@ -1,6 +1,6 @@
 // src/pages/ParkPage/ParkPage.tsx
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import styles from './ParkPage.module.scss';
 import { Park } from '../../types/parks';
 import { Parking } from '../../types/parkings';
@@ -49,6 +49,7 @@ const ParkPage: React.FC = () => {
       setErrorParkings('');
       try {
         const parkingsData = await parkingsApi.getParkingsByParkId(parkId);
+        console.log("ParkPage - Otrzymane parkingi z API:", JSON.stringify(parkingsData, null, 2));
         setParkings(parkingsData);
       } catch (err: unknown) {
         console.error("Błąd podczas pobierania parkingów:", err);
@@ -126,23 +127,37 @@ const ParkPage: React.FC = () => {
           )}
           {parkings.length > 0 && (
             <ul className={styles.parkingList}>
-  {parkings.map((parking) => (
-    <li key={parking.parking_id} className={styles.parkingItem}>
-      <h3>{parking.name}</h3>
-      {parking.latitude !== null && parking.longitude !== null && (
-        <p>Współrzędne: {parking.latitude}, {parking.longitude}</p>
-      )}
-      <button
-        className={styles.reserveButton}
-        onClick={() => window.location.href = `/parking/${parking.parking_id}`}
-      >
-        Przejdź do rezerwacji
-      </button>
-    </li>
-  ))}
-</ul>
+              {parkings.map((parking) => (
+                <li key={parking.parking_id} className={styles.parkingItem}>
+                  {/* Wyświetlanie zdjęcia parkingu */}
+                  {parking.imageUrl && (
+                    <img
+                      src={parking.imageUrl}
+                      alt={`Zdjęcie parkingu ${parking.name}`}
+                      className={styles.parkingImage} // Dodaj style dla obrazka
+                    />
+                  )}
+                  <div className={styles.parkingInfo}> {/* Kontener na tekst, aby lepiej ułożyć z obrazkiem */}
+                    <h3>{parking.name}</h3>
+                    {/* Wyświetlanie adresu parkingu */}
+                    {parking.address && (
+                      <p className={styles.parkingAddress}>{parking.address}</p> // Dodaj style dla adresu
+                    )}
+                    {/* Istniejące info o współrzędnych */}
+                    {/* {parking.latitude !== null && parking.longitude !== null && (
+                      <p>Współrzędne: {parking.latitude}, {parking.longitude}</p>
+                    )} */}
+                    {/* Użyj Link zamiast window.location.href dla lepszej nawigacji SPA */}
+                    <Link to={`/parking/${parking.parking_id}`} className={styles.reserveButtonLink}>
+                      <button className={styles.reserveButton}>
+                        Przejdź do rezerwacji
+                      </button>
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
-          
         </div>
       </div>
     </div>
