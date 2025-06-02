@@ -10,6 +10,7 @@ import { parkingsApi } from '../../api/parkingsApi';
 import { managersApi } from '../../api/managersApi'; // Jeśli potrzebujesz pobrać managera osobno
 import { PlaceGroup } from '../../types/placeGroup';
 import SingleParkingMap from '../../components/Map/SingleParkingMap';
+import DatePicker from '../../components/DatePicker/DatePicker';
 const ParkingDetailsPage: React.FC = () => {
   const { parkingId } = useParams<{ parkingId: string }>(); // Teraz używamy parkingId
 
@@ -96,6 +97,9 @@ const ParkingDetailsPage: React.FC = () => {
       <div className={styles.parkingInfoGrid}>
         <div className={styles.parkingMedia}>
   <h3>{parking?.name}</h3>
+  {parking.address && (
+                      <p className={styles.parkingAddress}>{parking.address}</p> // Dodaj style dla adresu
+                    )}
   {parking?.imageUrl && (
     <img
       src={parking.imageUrl}
@@ -109,10 +113,6 @@ const ParkingDetailsPage: React.FC = () => {
       <p>{parking.description}</p>
     </div>
   )}
-  {/* {parking?.latitude !== null && parking?.longitude !== null && (
-    <p className={styles.coordinates}>Współrzędne: {parking.latitude}, {parking.longitude}</p>
-  )} */}
-
           {/* --- SEKCJA DLA GRUP MIEJSC --- */}
           {parking?.place_groups && parking.place_groups.length > 0 && (
             <div className={styles.placeGroupsSection}>
@@ -166,6 +166,9 @@ const ParkingDetailsPage: React.FC = () => {
     </p>
   </div>
 )}
+ <DatePicker
+
+              />
 
 {!manager && parking?.manager_id && ( // Ten blok jest dla "ładowanie..."
   <div className={styles.managerInfo}>
