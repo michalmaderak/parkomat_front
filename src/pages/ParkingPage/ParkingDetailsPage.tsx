@@ -9,7 +9,7 @@ import { parksApi } from '../../api/parksApi';
 import { parkingsApi } from '../../api/parkingsApi';
 import { managersApi } from '../../api/managersApi'; // Jeśli potrzebujesz pobrać managera osobno
 import { PlaceGroup } from '../../types/placeGroup';
-
+import SingleParkingMap from '../../components/Map/SingleParkingMap';
 const ParkingDetailsPage: React.FC = () => {
   const { parkingId } = useParams<{ parkingId: string }>(); // Teraz używamy parkingId
 
@@ -78,6 +78,11 @@ const ParkingDetailsPage: React.FC = () => {
   if (!parking) {
     return <p>Nie znaleziono parkingu.</p>;
   }
+   const hasValidCoordinates = parking &&
+                             typeof parking.latitude === 'number' &&
+                             typeof parking.longitude === 'number' &&
+                             !isNaN(parking.latitude) &&
+                             !isNaN(parking.longitude);
 
   return (
     <div className={styles.parkingDetailsContainer}>
@@ -104,16 +109,16 @@ const ParkingDetailsPage: React.FC = () => {
       <p>{parking.description}</p>
     </div>
   )}
-  {parking?.latitude !== null && parking?.longitude !== null && (
+  {/* {parking?.latitude !== null && parking?.longitude !== null && (
     <p className={styles.coordinates}>Współrzędne: {parking.latitude}, {parking.longitude}</p>
-  )}
+  )} */}
 
           {/* --- SEKCJA DLA GRUP MIEJSC --- */}
           {parking?.place_groups && parking.place_groups.length > 0 && (
             <div className={styles.placeGroupsSection}>
               <h4>Dostępne typy miejsc:</h4>
               <ul className={styles.placeGroupList}>
-                {parking.place_groups.map((group: PlaceGroup) => (
+                {parking.place_groups?.map((group: PlaceGroup) => ( // TUTAJ DODALIŚMY ?.
                   <li key={group.group_id} className={styles.placeGroupItem}>
                     <span className={styles.placeGroupType}>{group.type}:</span>
                     <span className={styles.placeGroupQuantity}>{group.quantity} miejsc</span>
@@ -129,7 +134,24 @@ const ParkingDetailsPage: React.FC = () => {
           )}
           {/* --- KONIEC SEKCJI DLA GRUP MIEJSC --- */}
         </div>
-
+{/* --- UŻYCIE NOWEGO KOMPONENTU MAPY --- */}
+          {hasValidCoordinates ? (
+            <div className={styles.mapContainerWrapper}> {/* Dodatkowy wrapper dla tytułu i mapy */}
+              <h4>Lokalizacja na mapie:</h4>
+              <SingleParkingMap
+                latitude={parking.latitude ?? 0}
+                longitude={parking.longitude ?? 0}
+                popupText={parking.name}
+                zoom={16} // Możesz dostosować zoom
+                // mapHeight="400px" // Możesz nadpisać domyślną wysokość
+              />
+            </div>
+          ) : (
+            <div className={styles.mapContainerWrapper}>
+                <p>Brak danych o lokalizacji do wyświetlenia mapy.</p>
+            </div>
+          )}
+          {/* --- KONIEC KOMPONENTU MAPY --- */}
         {manager && ( // <--- Czy ten warunek jest na pewno TRUE, gdy manager ma dane?
   <div className={styles.managerInfo}>
     <h4>Informacje o managerze parkingu:</h4>
@@ -144,6 +166,7 @@ const ParkingDetailsPage: React.FC = () => {
     </p>
   </div>
 )}
+
 {!manager && parking?.manager_id && ( // Ten blok jest dla "ładowanie..."
   <div className={styles.managerInfo}>
     <p>Ładowanie informacji o managerze...</p>
