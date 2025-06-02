@@ -115,16 +115,14 @@ const ParkingDetailsPage: React.FC = () => {
 
           {/* --- SEKCJA DLA GRUP MIEJSC --- */}
           {parking?.place_groups && parking.place_groups.length > 0 && (
-            <div className={styles.placeGroupsSection}>
+            <div className={styles.placeGroupsSection}><br />
               <h4>Dostępne typy miejsc:</h4>
-              <ul className={styles.placeGroupList}>
                 {parking.place_groups?.map((group: PlaceGroup) => ( // TUTAJ DODALIŚMY ?.
                   <li key={group.group_id} className={styles.placeGroupItem}>
                     <span className={styles.placeGroupType}>{group.type}:</span>
                     <span className={styles.placeGroupQuantity}>{group.quantity} miejsc</span>
                   </li>
                 ))}
-              </ul>
             </div>
           )}
           {(!parking?.place_groups || parking.place_groups.length === 0) && (

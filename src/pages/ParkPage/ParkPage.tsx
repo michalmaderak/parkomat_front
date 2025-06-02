@@ -6,22 +6,78 @@ import { Park } from '../../types/parks';
 import { Parking } from '../../types/parkings';
 import { parksApi } from '../../api/parksApi';
 import { parkingsApi } from '../../api/parkingsApi';
+import { PlaceGroup } from '../../types/placeGroup';
 
 const ParkPage: React.FC = () => {
-  const { parkId } = useParams<{ parkId: string }>(); // Pobierz parkId z URL
-
+  const { parkId } = useParams<{ parkId: string }>();
   const [park, setPark] = useState<Park | null>(null);
   const [parkings, setParkings] = useState<Parking[]>([]);
+  const [filteredParkings, setFilteredParkings] = useState<Parking[]>([]);
   const [isLoadingPark, setIsLoadingPark] = useState<boolean>(true);
   const [isLoadingParkings, setIsLoadingParkings] = useState<boolean>(true);
   const [errorPark, setErrorPark] = useState<string>('');
   const [errorParkings, setErrorParkings] = useState<string>('');
+  const [vehicleFilters, setVehicleFilters] = useState({
+    car: false,
+    bus: false,
+    motorcycle: false
+  });
+  const [placeFilters, setPlaceFilters] = useState({
+    covered: false,
+    uncovered: false
+  });
+
+  // Filtrowanie parkingów
+  useEffect(() => {
+    if (parkings.length === 0) return;
+
+    let result = parkings;
+
+    // Filtrowanie po pojeździe
+    if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motorcycle) {
+      result = result.filter(parking => {
+        const placeGroups = parking.place_groups || [];
+        return (
+          (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase().includes('osobowy'))) ||
+          (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase().includes('autobus'))) ||
+          (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase().includes('motocykl')))
+        );
+      });
+    }
+
+    // Filtrowanie po typie miejsca
+    if (placeFilters.covered || placeFilters.uncovered) {
+      result = result.filter(parking => {
+        const placeGroups = parking.place_groups || [];
+        return (
+          (placeFilters.covered && placeGroups.some(g => g.type.toLowerCase().includes('zadaszony'))) ||
+          (placeFilters.uncovered && placeGroups.some(g => g.type.toLowerCase().includes('bez dachu')))
+        );
+      });
+    }
+
+    setFilteredParkings(result);
+  }, [vehicleFilters, placeFilters, parkings]);
+
+  const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
+    setVehicleFilters(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }));
+  };
+
+  const handlePlaceFilterChange = (type: keyof typeof placeFilters) => {
+    setPlaceFilters(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }));
+  };
 
   useEffect(() => {
     if (!parkId) {
       setErrorPark("Nieprawidłowy ID parku.");
       setIsLoadingPark(false);
-      setIsLoadingParkings(false); // Również zatrzymaj ładowanie parkingów
+      setIsLoadingParkings(false);
       return;
     }
 
@@ -49,8 +105,8 @@ const ParkPage: React.FC = () => {
       setErrorParkings('');
       try {
         const parkingsData = await parkingsApi.getParkingsByParkId(parkId);
-        console.log("ParkPage - Otrzymane parkingi z API:", JSON.stringify(parkingsData, null, 2));
         setParkings(parkingsData);
+        setFilteredParkings(parkingsData);
       } catch (err: unknown) {
         console.error("Błąd podczas pobierania parkingów:", err);
         let errorMessage = "Nie udało się pobrać listy parkingów.";
@@ -59,6 +115,7 @@ const ParkPage: React.FC = () => {
         }
         setErrorParkings(errorMessage);
         setParkings([]);
+        setFilteredParkings([]);
       } finally {
         setIsLoadingParkings(false);
       }
@@ -66,14 +123,13 @@ const ParkPage: React.FC = () => {
 
     fetchParkDetails();
     fetchParkings();
-
-  }, [parkId]); // Efekt uruchamia się ponownie, gdy parkId się zmieni
+  }, [parkId]);
 
   if (isLoadingPark || isLoadingParkings) {
     return <p>Ładowanie danych...</p>;
   }
 
-    return (
+  return (
     <div className={styles.parkPageContainer}>
       {errorPark && <p className={styles.error}>{errorPark}</p>}
 
@@ -94,65 +150,103 @@ const ParkPage: React.FC = () => {
         </div>
 
         <div className={styles.search}>
-          {/* Możesz tu wstawić input wyszukiwania */}
           <input type="text" placeholder="Szukaj parkingu..." />
         </div>
 
         <div className={styles.tags}>
           <p className={styles.tagTitle}>filtruj według</p>
+
           <div className={styles.filterGroup}>
             <p className={styles.filterTitle}>Pojazd:</p>
-            <label><input type="checkbox" /> Samochód osobowy</label>
-            <label><input type="checkbox" /> Autobus</label>
-            <label><input type="checkbox" /> Motocykl</label>
+            <label>
+              <input
+                type="checkbox"
+                checked={vehicleFilters.car}
+                onChange={() => handleVehicleFilterChange('car')}
+              />
+              Samochód osobowy
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={vehicleFilters.bus}
+                onChange={() => handleVehicleFilterChange('bus')}
+              />
+              Autobus
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={vehicleFilters.motorcycle}
+                onChange={() => handleVehicleFilterChange('motorcycle')}
+              />
+              Motocykl
+            </label>
           </div>
 
           <div className={styles.filterGroup}>
             <p className={styles.filterTitle}>Typ miejsca:</p>
-            <label><input type="checkbox" /> Bez dachu</label>
-            <label><input type="checkbox" /> Zadaszony</label>
+            <label>
+              <input
+                type="checkbox"
+                checked={placeFilters.uncovered}
+                onChange={() => handlePlaceFilterChange('uncovered')}
+              />
+              Bez dachu
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={placeFilters.covered}
+                onChange={() => handlePlaceFilterChange('covered')}
+              />
+              Zadaszony
+            </label>
           </div>
-
-          {/* <div className={styles.filterGroup}>
-            <p className={styles.filterTitle}>Blisko atrakcji:</p>
-            <label><input type="checkbox" /> </label>
-          </div> */}
         </div>
 
         <div className={styles.parkingsSection}>
-          <h2>Parkingi</h2>
+          <h2>Parkingi {filteredParkings.length !== parkings.length && `(${filteredParkings.length}/${parkings.length})`}</h2>
           {errorParkings && <p className={styles.error}>{errorParkings}</p>}
-          {!isLoadingParkings && parkings.length === 0 && !errorParkings && (
-            <p>Brak dostępnych parkingów dla tego parku.</p>
+          {!isLoadingParkings && filteredParkings.length === 0 && (
+            <p>Brak dostępnych parkingów spełniających kryteria.</p>
           )}
-          {parkings.length > 0 && (
+          {filteredParkings.length > 0 && (
             <ul className={styles.parkingList}>
-              {parkings.map((parking) => (
+              {filteredParkings.map((parking) => (
                 <li key={parking.parking_id} className={styles.parkingItem}>
-                  {/* Wyświetlanie zdjęcia parkingu */}
                   {parking.imageUrl && (
                     <img
                       src={parking.imageUrl}
                       alt={`Zdjęcie parkingu ${parking.name}`}
-                      className={styles.parkingImage} // Dodaj style dla obrazka
+                      className={styles.parkingImage}
                     />
                   )}
-                  <div className={styles.parkingInfo}> {/* Kontener na tekst, aby lepiej ułożyć z obrazkiem */}
+                  <div className={styles.parkingInfo}>
                     <h3>{parking.name}</h3>
-                    {/* Wyświetlanie adresu parkingu */}
                     {parking.address && (
-                      <p className={styles.parkingAddress}>{parking.address}</p> // Dodaj style dla adresu
+                      <p className={styles.parkingAddress}>{parking.address}</p>
                     )}
-                    {/* Istniejące info o współrzędnych */}
-                    {/* {parking.latitude !== null && parking.longitude !== null && (
-                      <p>Współrzędne: {parking.latitude}, {parking.longitude}</p>
-                    )} */}
-                    {/* Użyj Link zamiast window.location.href dla lepszej nawigacji SPA */}
-                    <Link to={`/parking/${parking.parking_id}`} className={styles.reserveButtonLink}>
-                      <button className={styles.reserveButton}>
-                        Przejdź do rezerwacji
-                      </button>
-                    </Link>
+
+                    <h4>Dostępne typy miejsc:</h4>
+
+                    {parking.place_groups?.map((group: PlaceGroup) => (
+                      <li key={group.group_id} className={styles.placeGroupItem}>
+                        <span className={styles.placeGroupType}>{group.type}:</span>
+                        <span className={styles.placeGroupIcon}>
+                          {group.quantity > 0 ? '🟢' : '🔴'}
+                        </span>
+                      </li>
+                    ))}
+
+
+                    <div className={styles.buttonContainer}>
+                      <Link to={`/parking/${parking.parking_id}`} className={styles.reserveButtonLink}>
+                        <button className={styles.reserveButton}>
+                          Przejdź do rezerwacji
+                        </button>
+                      </Link>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -162,7 +256,11 @@ const ParkPage: React.FC = () => {
       </div>
     </div>
   );
-
 };
 
+
 export default ParkPage;
+
+function setFilteredParkings(result: Parking[]) {
+  throw new Error('Function not implemented.');
+}
