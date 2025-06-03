@@ -1,0 +1,109 @@
+/* src/components/ReservationSuccessModal/ReservationSuccessModal.module.scss */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: #f0f0f0; /* Jasnoszare tło */
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Większy cień */
+    width: 90%;
+    max-width: 550px; /* Nieco szerszy */
+    position: relative;
+    text-align: center;
+    color: var(--text-color, #333);
+    border: 1px solid #ddd;
+    animation: fadeInScale 0.3s ease-out forwards;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.successIcon {
+    margin-bottom: 25px;
+    color: #28a745; /* Zielony kolor ikony */
+    font-size: 4em; /* Duża ikona kciuka */
+    img {
+        width: 100px; /* Dopasuj rozmiar obrazka, jeśli go używasz */
+        height: 100px;
+    }
+}
+
+.successTitle {
+    font-size: 2.2em; /* Większy tytuł */
+    color: #28a745; /* Zielony tytuł */
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.successMessage {
+    font-size: 1.3em; /* Większy komunikat */
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.confirmationText {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.emailDisplay {
+    font-weight: bold;
+    color: #0056b3; /* Kolor dla e-maila */
+}
+
+.greeting {
+    font-size: 1.2em;
+    font-style: italic;
+    color: #666;
+    margin-bottom: 35px;
+}
+
+.homeButton {
+    display: inline-flex; /* Umożliwia ułożenie tekstu i ikony obok siebie */
+    align-items: center;
+    justify-content: center;
+    padding: 12px 25px;
+    background-color: var(--primary-color, #007bff);
+    color: white;
+    border: none;
+    border-radius: 30px; /* Zaokrąglony kształt */
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+
+    &:hover {
+        background-color: var(--primary-dark-color, #0056b3);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .returnArrow {
+        margin-left: 10px;
+        width: 20px;
+        height: 20px;
+        filter: invert(1); /* Odwróć kolory strzałki, jeśli jest czarna, na białe */
+    }
+}

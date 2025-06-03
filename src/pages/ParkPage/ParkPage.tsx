@@ -9,258 +9,267 @@ import { parkingsApi } from '../../api/parkingsApi';
 import { PlaceGroup } from '../../types/placeGroup';
 
 const ParkPage: React.FC = () => {
-  const { parkId } = useParams<{ parkId: string }>();
-  const [park, setPark] = useState<Park | null>(null);
-  const [parkings, setParkings] = useState<Parking[]>([]);
-  const [filteredParkings, setFilteredParkings] = useState<Parking[]>([]);
-  const [isLoadingPark, setIsLoadingPark] = useState<boolean>(true);
-  const [isLoadingParkings, setIsLoadingParkings] = useState<boolean>(true);
-  const [errorPark, setErrorPark] = useState<string>('');
-  const [errorParkings, setErrorParkings] = useState<string>('');
-  const [vehicleFilters, setVehicleFilters] = useState({
-    car: false,
-    bus: false,
-    motorcycle: false
-  });
-  const [placeFilters, setPlaceFilters] = useState({
-    covered: false,
-    uncovered: false
-  });
+    const { parkId } = useParams<{ parkId: string }>();
+    const [park, setPark] = useState<Park | null>(null);
+    const [parkings, setParkings] = useState<Parking[]>([]);
+    const [filteredParkings, setFilteredParkings] = useState<Parking[]>([]);
+    const [isLoadingPark, setIsLoadingPark] = useState<boolean>(true);
+    const [isLoadingParkings, setIsLoadingParkings] = useState<boolean>(true);
+    const [errorPark, setErrorPark] = useState<string>('');
+    const [errorParkings, setErrorParkings] = useState<string>('');
+    const [vehicleFilters, setVehicleFilters] = useState({
+        car: false,
+        bus: false,
+        motorcycle: false
+    });
+    const [placeFilters, setPlaceFilters] = useState({
+        covered: false,
+        uncovered: false
+    });
 
-  // Filtrowanie parkingów
-  useEffect(() => {
-    if (parkings.length === 0) return;
+    // Filtrowanie parkingów
+    useEffect(() => {
+        if (parkings.length === 0) return;
 
-    let result = parkings;
+        let result = parkings;
 
-    // Filtrowanie po pojeździe
-    if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motorcycle) {
-      result = result.filter(parking => {
-        const placeGroups = parking.place_groups || [];
-        return (
-          (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase().includes('osobowy'))) ||
-          (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase().includes('autobus'))) ||
-          (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase().includes('motocykl')))
-        );
-      });
-    }
-
-    // Filtrowanie po typie miejsca
-    if (placeFilters.covered || placeFilters.uncovered) {
-      result = result.filter(parking => {
-        const placeGroups = parking.place_groups || [];
-        return (
-          (placeFilters.covered && placeGroups.some(g => g.type.toLowerCase().includes('zadaszony'))) ||
-          (placeFilters.uncovered && placeGroups.some(g => g.type.toLowerCase().includes('bez dachu')))
-        );
-      });
-    }
-
-    setFilteredParkings(result);
-  }, [vehicleFilters, placeFilters, parkings]);
-
-  const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
-    setVehicleFilters(prev => ({
-      ...prev,
-      [type]: !prev[type]
-    }));
-  };
-
-  const handlePlaceFilterChange = (type: keyof typeof placeFilters) => {
-    setPlaceFilters(prev => ({
-      ...prev,
-      [type]: !prev[type]
-    }));
-  };
-
-  useEffect(() => {
-    if (!parkId) {
-      setErrorPark("Nieprawidłowy ID parku.");
-      setIsLoadingPark(false);
-      setIsLoadingParkings(false);
-      return;
-    }
-
-    const fetchParkDetails = async () => {
-      setIsLoadingPark(true);
-      setErrorPark('');
-      try {
-        const parkData = await parksApi.getById(parkId);
-        setPark(parkData);
-      } catch (err: unknown) {
-        console.error("Błąd podczas pobierania danych parku:", err);
-        let errorMessage = "Nie udało się pobrać danych parku.";
-        if (err instanceof Error) {
-          errorMessage += ` Błąd: ${err.message}`;
+        // Filtrowanie po pojeździe
+        if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motorcycle) {
+            result = result.filter(parking => {
+                const placeGroups = parking.place_groups || [];
+                // Zmiana: typy w backendzie to "car", "bus", "motorcycle", a nie "osobowy" itp.
+                return (
+                    (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase() === 'car')) ||
+                    (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase() === 'bus')) ||
+                    (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase() === 'motorcycle'))
+                );
+            });
         }
-        setErrorPark(errorMessage);
-        setPark(null);
-      } finally {
-        setIsLoadingPark(false);
-      }
+
+        // Filtrowanie po typie miejsca
+        if (placeFilters.covered || placeFilters.uncovered) {
+            result = result.filter(parking => {
+                const placeGroups = parking.place_groups || [];
+                // Zakładam, że backend ma jakieś pole określające zadaszenie, np. "isCovered: boolean"
+                // lub typy miejsc jak "covered_car", "uncovered_car". Musisz to dostosować.
+                // Jeśli "type" oznacza tylko rodzaj pojazdu, to musisz dodać inne pole w Parking/PlaceGroup.
+                // Na potrzeby przykładu zmieniam, by szukać w typie "covered" lub "uncovered".
+                return (
+                    (placeFilters.covered && placeGroups.some(g => g.type.toLowerCase().includes('covered'))) ||
+                    (placeFilters.uncovered && placeGroups.some(g => g.type.toLowerCase().includes('uncovered')))
+                );
+            });
+        }
+
+        setFilteredParkings(result);
+    }, [vehicleFilters, placeFilters, parkings]);
+
+    const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
+        setVehicleFilters(prev => ({
+            ...prev,
+            [type]: !prev[type]
+        }));
     };
 
-    const fetchParkings = async () => {
-      setIsLoadingParkings(true);
-      setErrorParkings('');
-      try {
-        const parkingsData = await parkingsApi.getParkingsByParkId(parkId);
-        setParkings(parkingsData);
-        setFilteredParkings(parkingsData);
-      } catch (err: unknown) {
-        console.error("Błąd podczas pobierania parkingów:", err);
-        let errorMessage = "Nie udało się pobrać listy parkingów.";
-        if (err instanceof Error) {
-          errorMessage += ` Błąd: ${err.message}`;
-        }
-        setErrorParkings(errorMessage);
-        setParkings([]);
-        setFilteredParkings([]);
-      } finally {
-        setIsLoadingParkings(false);
-      }
+    const handlePlaceFilterChange = (type: keyof typeof placeFilters) => {
+        setPlaceFilters(prev => ({
+            ...prev,
+            [type]: !prev[type]
+        }));
     };
 
-    fetchParkDetails();
-    fetchParkings();
-  }, [parkId]);
+    useEffect(() => {
+        if (!parkId) {
+            setErrorPark("Nieprawidłowy ID parku.");
+            setIsLoadingPark(false);
+            setIsLoadingParkings(false);
+            return;
+        }
 
-  if (isLoadingPark || isLoadingParkings) {
-    return <p>Ładowanie danych...</p>;
-  }
+        const fetchParkDetails = async () => {
+            setIsLoadingPark(true);
+            setErrorPark('');
+            try {
+                const parkData = await parksApi.getById(parkId);
+                setPark(parkData);
+            } catch (err: unknown) {
+                console.error("Błąd podczas pobierania danych parku:", err);
+                let errorMessage = "Nie udało się pobrać danych parku.";
+                if (err instanceof Error) {
+                    errorMessage += ` Błąd: ${err.message}`;
+                }
+                setErrorPark(errorMessage);
+                setPark(null);
+            } finally {
+                setIsLoadingPark(false);
+            }
+        };
 
-  return (
-    <div className={styles.parkPageContainer}>
-      {errorPark && <p className={styles.error}>{errorPark}</p>}
+        const fetchParkings = async () => {
+            setIsLoadingParkings(true);
+            setErrorParkings('');
+            try {
+                const parkingsData = await parkingsApi.getParkingsByParkId(parkId);
+                setParkings(parkingsData);
+                setFilteredParkings(parkingsData);
+            } catch (err: unknown) {
+                console.error("Błąd podczas pobierania parkingów:", err);
+                let errorMessage = "Nie udało się pobrać listy parkingów.";
+                if (err instanceof Error) {
+                    errorMessage += ` Błąd: ${err.message}`;
+                }
+                setErrorParkings(errorMessage);
+                setParkings([]);
+                setFilteredParkings([]);
+            } finally {
+                setIsLoadingParkings(false);
+            }
+        };
 
-      <div className={styles.grid}>
-        <div className={styles.parkHeader}>
-          {park ? (
-            <>
-              <img
-                src={park.parkLogoLink}
-                alt={`Logo ${park.name}`}
-                className={styles.parkLogo}
-              />
-              <h1>{park.name}</h1>
-            </>
-          ) : (
-            !isLoadingPark && <p>Nie znaleziono informacji o parku.</p>
-          )}
-        </div>
+        fetchParkDetails();
+        fetchParkings();
+    }, [parkId]);
 
-        <div className={styles.search}>
-          <input type="text" placeholder="Szukaj parkingu..." />
-        </div>
+    if (isLoadingPark || isLoadingParkings) {
+        return <p>Ładowanie danych...</p>;
+    }
 
-        <div className={styles.tags}>
-          <p className={styles.tagTitle}>filtruj według</p>
+    return (
+        <div className={styles.parkPageContainer}>
+            {errorPark && <p className={styles.error}>{errorPark}</p>}
 
-          <div className={styles.filterGroup}>
-            <p className={styles.filterTitle}>Pojazd:</p>
-            <label>
-              <input
-                type="checkbox"
-                checked={vehicleFilters.car}
-                onChange={() => handleVehicleFilterChange('car')}
-              />
-              Samochód osobowy
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={vehicleFilters.bus}
-                onChange={() => handleVehicleFilterChange('bus')}
-              />
-              Autobus
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={vehicleFilters.motorcycle}
-                onChange={() => handleVehicleFilterChange('motorcycle')}
-              />
-              Motocykl
-            </label>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <p className={styles.filterTitle}>Typ miejsca:</p>
-            <label>
-              <input
-                type="checkbox"
-                checked={placeFilters.uncovered}
-                onChange={() => handlePlaceFilterChange('uncovered')}
-              />
-              Bez dachu
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={placeFilters.covered}
-                onChange={() => handlePlaceFilterChange('covered')}
-              />
-              Zadaszony
-            </label>
-          </div>
-        </div>
-
-        <div className={styles.parkingsSection}>
-          <h2>Parkingi {filteredParkings.length !== parkings.length && `(${filteredParkings.length}/${parkings.length})`}</h2>
-          {errorParkings && <p className={styles.error}>{errorParkings}</p>}
-          {!isLoadingParkings && filteredParkings.length === 0 && (
-            <p>Brak dostępnych parkingów spełniających kryteria.</p>
-          )}
-          {filteredParkings.length > 0 && (
-            <ul className={styles.parkingList}>
-              {filteredParkings.map((parking) => (
-                <li key={parking.parking_id} className={styles.parkingItem}>
-                  {parking.imageUrl && (
-                    <img
-                      src={parking.imageUrl}
-                      alt={`Zdjęcie parkingu ${parking.name}`}
-                      className={styles.parkingImage}
-                    />
-                  )}
-                  <div className={styles.parkingInfo}>
-                    <h3>{parking.name}</h3>
-                    {parking.address && (
-                      <p className={styles.parkingAddress}>{parking.address}</p>
+            <div className={styles.grid}>
+                <div className={styles.parkHeader}>
+                    {park ? (
+                        <>
+                            <img
+                                src={park.parkLogoLink}
+                                alt={`Logo ${park.name}`}
+                                className={styles.parkLogo}
+                            />
+                            <h1>{park.name}</h1>
+                        </>
+                    ) : (
+                        !isLoadingPark && <p>Nie znaleziono informacji o parku.</p>
                     )}
+                </div>
 
-                    <h4>Dostępne typy miejsc:</h4>
+                <div className={styles.search}>
+                    <input type="text" placeholder="Szukaj parkingu..." />
+                </div>
 
-                    {parking.place_groups?.map((group: PlaceGroup) => (
-                      <li key={group.group_id} className={styles.placeGroupItem}>
-                        <span className={styles.placeGroupType}>{group.type}:</span>
-                        <span className={styles.placeGroupIcon}>
-                          {group.quantity > 0 ? '🟢' : '🔴'}
-                        </span>
-                      </li>
-                    ))}
+                <div className={styles.tags}>
+                    <p className={styles.tagTitle}>filtruj według</p>
 
-
-                    <div className={styles.buttonContainer}>
-                      <Link to={`/parking/${parking.parking_id}`} className={styles.reserveButtonLink}>
-                        <button className={styles.reserveButton}>
-                          Przejdź do rezerwacji
-                        </button>
-                      </Link>
+                    <div className={styles.filterGroup}>
+                        <p className={styles.filterTitle}>Pojazd:</p>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={vehicleFilters.car}
+                                onChange={() => handleVehicleFilterChange('car')}
+                            />
+                            Samochód osobowy
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={vehicleFilters.bus}
+                                onChange={() => handleVehicleFilterChange('bus')}
+                            />
+                            Autobus
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={vehicleFilters.motorcycle}
+                                onChange={() => handleVehicleFilterChange('motorcycle')}
+                            />
+                            Motocykl
+                        </label>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+
+                    <div className={styles.filterGroup}>
+                        <p className={styles.filterTitle}>Typ miejsca:</p>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={placeFilters.uncovered}
+                                onChange={() => handlePlaceFilterChange('uncovered')}
+                            />
+                            Bez dachu
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={placeFilters.covered}
+                                onChange={() => handlePlaceFilterChange('covered')}
+                            />
+                            Zadaszony
+                        </label>
+                    </div>
+                </div>
+
+                <div className={styles.parkingsSection}>
+                    <h2>Parkingi {filteredParkings.length !== parkings.length && `(${filteredParkings.length}/${parkings.length})`}</h2>
+                    {errorParkings && <p className={styles.error}>{errorParkings}</p>}
+                    {!isLoadingParkings && filteredParkings.length === 0 && (
+                        <p>Brak dostępnych parkingów spełniających kryteria.</p>
+                    )}
+                    {filteredParkings.length > 0 && (
+                        <ul className={styles.parkingList}>
+                            {filteredParkings.map((parking) => (
+                                <li key={parking.parking_id} className={styles.parkingItem}>
+                                    {/* --- ZMIANA TUTAJ: Dodano Fragment JSX <>...</> --- */}
+                                    <>
+                                        {parking.imageUrl && (
+                                            <img
+                                                src={parking.imageUrl}
+                                                alt={`Zdjęcie parkingu ${parking.name}`}
+                                                className={styles.parkingImage}
+                                            />
+                                        )}
+
+                                        <div className={styles.parkingInfo}>
+                                            <h3>{parking.name}</h3>
+                                            {parking.address && (
+                                                <p className={styles.parkingAddress}>{parking.address}</p>
+                                            )}
+
+                                            <h4>Dostępne typy miejsc:</h4>
+
+                                            {parking.place_groups && parking.place_groups.length > 0 ? (
+                                                <ul className={styles.placeGroupsList}>
+                                                    {parking.place_groups.map((group: PlaceGroup) => (
+                                                        <li key={group.group_id} className={styles.placeGroupItem}>
+                                                            <span className={styles.placeGroupType}>{group.type}:</span>
+                                                            <span className={styles.placeGroupIcon}>
+                                                                {group.quantity > 0 ? '🟢' : '🔴'}
+                                                            </span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <p>Brak informacji o typach miejsc.</p>
+                                            )}
+
+                                            <div className={styles.buttonContainer}>
+                                                <Link to={`/parking/${parking.parking_id}`} className={styles.reserveButtonLink}>
+                                                    <button className={styles.reserveButton}>
+                                                        Przejdź do rezerwacji
+                                                    </button>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </> {/* --- KONIEC ZMIANY: Zamknięcie Fragmentu JSX --- */}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>
+        </div >
+    );
 };
 
-
 export default ParkPage;
-
-function setFilteredParkings(result: Parking[]) {
-  throw new Error('Function not implemented.');
-}

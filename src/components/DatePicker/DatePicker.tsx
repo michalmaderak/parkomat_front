@@ -1,51 +1,67 @@
+// src/components/DatePicker/DatePicker.tsx
+
 import React, { useState } from 'react';
 import './DatePicker.scss';
 
-const DatePicker: React.FC = () => {
-  const [arrivalDate, setArrivalDate] = useState<string>('2025-06-12');
-  const [departureDate, setDepartureDate] = useState<string>('2025-06-12');
-  const [tripType, setTripType] = useState<string>('Osobowy');
+// Zmieniamy interfejs propów, aby przyjmował funkcję callback
+interface DatePickerProps {
+    onDateSelect: (date: Date) => void; // Funkcja, która zostanie wywołana z wybraną datą (Data przyjazdu)
+    // Opcjonalnie, jeśli chcesz by DatePicker miał początkową wartość z zewnątrz:
+    // initialDate?: Date | null;
+}
 
-  const handleDateChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setter(e.target.value);
-  };
+const DatePicker: React.FC<DatePickerProps> = ({ onDateSelect /*, initialDate */ }) => {
+    // Ustawiamy stan początkowy na dzisiejszą datę lub jakąś domyślną, aby przycisk mógł się aktywować
+    // Możemy to zrobić w formacie YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
+    const [arrivalDate, setArrivalDate] = useState<string>(today);
+    const [departureDate, setDepartureDate] = useState<string>(today); // Domyślnie ta sama, dla uproszczenia
 
-  const handleTripTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTripType(e.target.value);
-  };
+    // Wywołujemy callback, gdy data przyjazdu się zmienia
+    const handleArrivalDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newDateString = e.target.value;
+        setArrivalDate(newDateString);
+        // Konwertujemy string na obiekt Date i przekazujemy do komponentu nadrzędnego
+        onDateSelect(new Date(newDateString));
+    };
 
-  return (
-    <div className="date-picker-container">
-      <div className="date-inputs">
-        <div>
-          <label>Data przyjazdu:</label>
-          <input
-            type="date"
-            value={arrivalDate}
-            onChange={handleDateChange(setArrivalDate)}
-          />
+    const handleDepartureDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDepartureDate(e.target.value);
+        // Na razie nie przekazujemy daty wyjazdu do komponentu nadrzędnego,
+        // ponieważ ParkingDetailsPage oczekuje tylko jednej `selectedDate` dla rezerwacji.
+        // Jeśli chcesz obsługiwać zakres, musisz to zmienić w ParkingDetailsPage.
+    };
+
+    return (
+        <div className="date-picker-container">
+            <div className="date-inputs">
+                <div>
+                    <label>Data przyjazdu:</label>
+                    <input
+                        type="date"
+                        value={arrivalDate}
+                        onChange={handleArrivalDateChange} // Używamy nowego handlera
+                    />
+                </div>
+                <div>
+                    <label>Data wyjazdu:</label>
+                    <input
+                        type="date"
+                        value={departureDate}
+                        onChange={handleDepartureDateChange}
+                    />
+                </div>
+            </div>
+            {/* Usunięcie selektora typu podróży, jeśli nie jest używany */}
+            {/* <div className="trip-type">
+                <label>Typ podróży:</label>
+                <select value={tripType} onChange={handleTripTypeChange}>
+                    <option value="Osobowy">Osobowy</option>
+                    <option value="Biznesowy">Biznesowy</option>
+                </select>
+            </div> */}
         </div>
-        <div>
-          <label>Data wyjazdu:</label>
-          <input
-            type="date"
-            value={departureDate}
-            onChange={handleDateChange(setDepartureDate)}
-          />
-        </div>
-        <div>
-          <label>Rodzaj pojazdu:</label>
-          <select value={tripType} onChange={handleTripTypeChange}>
-            <option value="Osobowy">Osobowy</option>
-            <option value="Ciężarowy">Ciężarowy</option>
-          </select>
-        </div>
-      </div>
-      <div className="parking-info">
-        <h1>O naszym parkingu</h1>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default DatePicker;
