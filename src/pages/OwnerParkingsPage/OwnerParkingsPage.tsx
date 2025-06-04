@@ -63,12 +63,16 @@ const OwnerParkingsPage: React.FC = () => {
 
 
     if (isLoading) {
-        return <p>Ładowanie Twoich parkingów...</p>;
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
+                <p className={styles.loadingText}>Ładowanie Twoich parkingów...</p>
+            </div>
+        );
     }
 
     return (
         <div className={styles.ownerParkingsPageContainer}>
-            {/* Usunięto nagłówek <h1>Moje Parkingi</h1> */}
             {error && <p className={styles.error}>{error}</p>}
 
             <div className={styles.grid}>

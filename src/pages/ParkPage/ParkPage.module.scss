@@ -156,12 +156,6 @@ img.parkLogo {
   flex-shrink: 0;
 }
 
-.parkingInfo {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1;
-}
 
 .parkingInfo h3 {
   margin: 0 0 0.5rem 0;
@@ -240,4 +234,33 @@ img.parkLogo {
 .buttonContainer {
   display: flex;
   justify-content: flex-end;
+}
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh; /* Zajmuje większą część ekranu, aby było centralnie */
+    font-size: 1.5em; /* Trochę większy tekst */
+    color: #333;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #007bff; /* Kolor kółeczka */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite; /* Animacja obracania */
+    margin-bottom: 15px; /* Odstęp między kółkiem a tekstem */
+}
+
+.loadingText {
+    font-size: 1.2em; /* Rozmiar tekstu "Ładowanie danych..." */
+    color: #555;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

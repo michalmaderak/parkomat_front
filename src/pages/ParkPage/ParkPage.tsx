@@ -16,27 +16,24 @@ const ParkPage: React.FC = () => {
     const [isLoadingParkings, setIsLoadingParkings] = useState<boolean>(true);
     const [errorPark, setErrorPark] = useState<string>('');
     const [errorParkings, setErrorParkings] = useState<string>('');
-    const [searchTerm, setSearchTerm] = useState<string>(''); // NOWY STAN: do wyszukiwania po nazwie
+    const [searchTerm, setSearchTerm] = useState<string>('');
     const [vehicleFilters, setVehicleFilters] = useState({
         car: false,
         bus: false,
         motorcycle: false
     });
-    const [placeFilters, setPlaceFilters] = useState({
-        covered: false,
-        uncovered: false
-    });
+    // Usunięto: const [placeFilters, setPlaceFilters] = useState...
 
     // Filtrowanie parkingów
     useEffect(() => {
-        if (parkings.length === 0) {
-            setFilteredParkings([]); // Resetuj filtr, jeśli nie ma parkingów
+        if (parkings.length === 0 && searchTerm === '' && !vehicleFilters.car && !vehicleFilters.bus && !vehicleFilters.motorcycle) {
+            setFilteredParkings([]); // Resetuj filtr, jeśli nie ma parkingów i brak aktywnych filtrów
             return;
         }
 
         let result = parkings;
 
-        // NOWA ZMIANA: Filtrowanie po nazwie parkingu
+        // Filtrowanie po nazwie parkingu
         if (searchTerm) {
             result = result.filter(parking =>
                 parking.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -54,8 +51,9 @@ const ParkPage: React.FC = () => {
                 );
             });
         }
+
         setFilteredParkings(result);
-    }, [searchTerm, vehicleFilters, placeFilters, parkings]); // Dodano searchTerm do zależności
+    }, [searchTerm, vehicleFilters, parkings]); // Usunięto placeFilters z zależności
 
     const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
         setVehicleFilters(prev => ({
@@ -64,14 +62,6 @@ const ParkPage: React.FC = () => {
         }));
     };
 
-    const handlePlaceFilterChange = (type: keyof typeof placeFilters) => {
-        setPlaceFilters(prev => ({
-            ...prev,
-            [type]: !prev[type]
-        }));
-    };
-
-    // NOWA FUNKCJA: Obsługa zmiany w polu wyszukiwania
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
     };
@@ -129,7 +119,12 @@ const ParkPage: React.FC = () => {
     }, [parkId]);
 
     if (isLoadingPark || isLoadingParkings) {
-        return <p>Ładowanie danych...</p>;
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
+                <p className={styles.loadingText}>Ładowanie danych...</p>
+            </div>
+        );
     }
 
     return (
@@ -156,8 +151,8 @@ const ParkPage: React.FC = () => {
                     <input
                         type="text"
                         placeholder="Szukaj parkingu..."
-                        value={searchTerm} // Podłączenie wartości
-                        onChange={handleSearchChange} // Podłączenie funkcji obsługującej zmianę
+                        value={searchTerm}
+                        onChange={handleSearchChange}
                     />
                 </div>
 
@@ -191,8 +186,6 @@ const ParkPage: React.FC = () => {
                             Motocykl
                         </label>
                     </div>
-
-
                 </div>
 
                 <div className={styles.parkingsSection}>

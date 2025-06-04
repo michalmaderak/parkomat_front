@@ -1,6 +1,6 @@
 // src/pages/HomePage/HomePage.tsx
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // <--- 1. Zaimportuj Link
+import { Link } from "react-router-dom";
 import styles from "./HomePage.module.scss";
 import MapComponent from "../Map/Map";
 import { MarkerData } from "../../types/map";
@@ -54,7 +54,11 @@ const HomePage: React.FC = () => {
         <div className={styles.parkListContainer}>
           <h2>Wybierz Park Narodowy</h2>
           {isLoading ? (
-            <p>Ładowanie listy parków...</p>
+            // Zmieniony kod dla ładowania listy parków
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner}></div>
+              <p className={styles.loadingText}>Ładowanie listy parków...</p>
+            </div>
           ) : error ? (
             <p className={styles.error}>{error}</p>
           ) : parks.length === 0 ? (
@@ -62,7 +66,7 @@ const HomePage: React.FC = () => {
           ) : (
             <ul className={styles.parkList}>
               {parks.map(park => (
-                <li key={park.id} className={styles.parkListItem}> {/* Możesz dodać klasę dla <li> jeśli potrzeba osobnych styli */}
+                <li key={park.id} className={styles.parkListItem}>
                   <Link to={`/parkpage/${park.id}`} className={styles.parkCard}>
                     <div className={styles.parkText}>
                       <h3 className={styles.parkName}>{park.name}</h3>
@@ -82,13 +86,17 @@ const HomePage: React.FC = () => {
 
         <div className={styles.mapContainer}>
           {isLoading ? (
-            <p>Ładowanie mapy...</p>
+            // Zmieniony kod dla ładowania mapy
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner}></div>
+              <p className={styles.loadingText}>Ładowanie mapy...</p>
+            </div>
           ) : error ? (
             <p className={styles.error}>Nie można załadować mapy z powodu błędu.</p>
           ) : markers.length > 0 ? (
             <MapComponent markers={markers} />
           ) : (
-             !isLoading && <p>Brak danych do wyświetlenia na mapie.</p>
+            !isLoading && <p>Brak danych do wyświetlenia na mapie.</p>
           )}
         </div>
       </div>
