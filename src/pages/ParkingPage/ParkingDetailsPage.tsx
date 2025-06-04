@@ -117,11 +117,7 @@ const ParkingDetailsPage: React.FC = () => {
             setIsModalOpen(true);
             setReservationMessage('');
         } else {
-            // Możesz ustawić komunikat w ReservationCard lub tutaj, aby poinformować użytkownika
-            // Żeby to zrobić, ReservationCard musiałoby przyjmować reservationMessage jako prop.
-            // Na razie zakładamy, że przycisk w ReservationCard będzie wyłączony, jeśli te warunki nie są spełnione.
             setReservationMessage('Wybierz datę i co najmniej jeden pojazd, aby kontynuować rezerwację.');
-            // Możesz też dodać alert() lub inny tymczasowy komunikat dla użytkownika
         }
     };
 
@@ -132,7 +128,6 @@ const ParkingDetailsPage: React.FC = () => {
 
     const handleCloseSuccessModal = () => {
         setIsSuccessModalOpen(false);
-        // Opcjonalnie: zresetuj formularz po zamknięciu modalu sukcesu, jeśli użytkownik nie wrócił na główną stronę
         setSelectedVehicles({});
         setSelectedDate(null);
         setReserveEmail('');
@@ -193,10 +188,9 @@ const ParkingDetailsPage: React.FC = () => {
             const response = await reservationAPI.createReservation(reservationData);
             console.log('Rezerwacja utworzona pomyślnie:', response);
             setReservationMessage('Rezerwacja została pomyślnie utworzona!');
-            // Resetujemy stan po udanej rezerwacji, ale nie zamykamy jeszcze modalu głównego
             setSelectedVehicles({});
             setSelectedDate(null);
-            setReserveEmail(''); // Email również resetujemy, ale jest on w modalu sukcesu
+            setReserveEmail('');
 
             setIsModalOpen(false); // Zamknij modal rezerwacji
             setIsSuccessModalOpen(true); // Otwórz modal sukcesu
@@ -221,7 +215,15 @@ const ParkingDetailsPage: React.FC = () => {
         !isNaN(parking.latitude) &&
         !isNaN(parking.longitude);
 
-    if (isLoading) return <p className={styles.loadingMessage}>Ładowanie informacji o parkingu...</p>;
+    // Zmieniony kod dla ładowania
+    if (isLoading) {
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
+                <p className={styles.loadingText}>Ładowanie informacji o parkingu...</p>
+            </div>
+        );
+    }
     if (error) return <p className={styles.error}>{error}</p>;
     if (!parking) return <p>Nie znaleziono parkingu.</p>;
 
@@ -324,9 +326,8 @@ const ParkingDetailsPage: React.FC = () => {
                             onOpenReservationModal={handleOpenReservationModal}
                         />
 
-                        {/* Komunikaty o walidacji i błędach będą wyświetlane w ReservationModal */}
                         {reservationMessage && !isModalOpen && !isSuccessModalOpen && (
-                             <p className={styles.reservationMessage}>{reservationMessage}</p>
+                            <p className={styles.reservationMessage}>{reservationMessage}</p>
                         )}
 
                     </div>
