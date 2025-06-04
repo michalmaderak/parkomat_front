@@ -1,4 +1,3 @@
-// src/pages/OwnerParkingsPage/OwnerParkingsPage.tsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './OwnerParkingsPage.module.scss'; // Stwórz nowy plik SCSS
@@ -14,15 +13,6 @@ const OwnerParkingsPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [vehicleFilters, setVehicleFilters] = useState({
-        car: false,
-        bus: false,
-        motorcycle: false
-    });
-    const [placeFilters, setPlaceFilters] = useState({
-        covered: false,
-        uncovered: false
-    });
 
     // Efekt do pobierania parkingów dla właściciela
     useEffect(() => {
@@ -68,45 +58,9 @@ const OwnerParkingsPage: React.FC = () => {
             );
         }
 
-        // Filtrowanie po typie pojazdu
-        if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motorcycle) {
-            result = result.filter(parking => {
-                const placeGroups = parking.place_groups || [];
-                return (
-                    (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase() === 'car')) ||
-                    (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase() === 'bus')) ||
-                    (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase() === 'motorcycle'))
-                );
-            });
-        }
-
-        // Filtrowanie po typie miejsca (zadaszone/niezadaszone)
-        if (placeFilters.covered || placeFilters.uncovered) {
-            result = result.filter(parking => {
-                const placeGroups = parking.place_groups || [];
-                return (
-                    (placeFilters.covered && placeGroups.some(g => g.type.toLowerCase().includes('covered'))) ||
-                    (placeFilters.uncovered && placeGroups.some(g => g.type.toLowerCase().includes('uncovered')))
-                );
-            });
-        }
-
         setFilteredParkings(result);
-    }, [searchTerm, vehicleFilters, placeFilters, parkings]);
+    }, [searchTerm, parkings]);
 
-    const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
-        setVehicleFilters(prev => ({
-            ...prev,
-            [type]: !prev[type]
-        }));
-    };
-
-    const handlePlaceFilterChange = (type: keyof typeof placeFilters) => {
-        setPlaceFilters(prev => ({
-            ...prev,
-            [type]: !prev[type]
-        }));
-    };
 
     if (isLoading) {
         return <p>Ładowanie Twoich parkingów...</p>;
@@ -114,7 +68,7 @@ const OwnerParkingsPage: React.FC = () => {
 
     return (
         <div className={styles.ownerParkingsPageContainer}>
-            <h1>Moje Parkingi</h1>
+            {/* Usunięto nagłówek <h1>Moje Parkingi</h1> */}
             {error && <p className={styles.error}>{error}</p>}
 
             <div className={styles.grid}>
@@ -127,56 +81,10 @@ const OwnerParkingsPage: React.FC = () => {
                     />
                 </div>
 
-                <div className={styles.tags}>
-                    <p className={styles.tagTitle}>filtruj według</p>
-
-                    <div className={styles.filterGroup}>
-                        <p className={styles.filterTitle}>Pojazd:</p>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={vehicleFilters.car}
-                                onChange={() => handleVehicleFilterChange('car')}
-                            />
-                            Samochód osobowy
-                        </label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={vehicleFilters.bus}
-                                onChange={() => handleVehicleFilterChange('bus')}
-                            />
-                            Autobus
-                        </label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={vehicleFilters.motorcycle}
-                                onChange={() => handleVehicleFilterChange('motorcycle')}
-                            />
-                            Motocykl
-                        </label>
-                    </div>
-
-                    <div className={styles.filterGroup}>
-                        <p className={styles.filterTitle}>Typ miejsca:</p>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={placeFilters.uncovered}
-                                onChange={() => handlePlaceFilterChange('uncovered')}
-                            />
-                            Bez dachu
-                        </label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={placeFilters.covered}
-                                onChange={() => handlePlaceFilterChange('covered')}
-                            />
-                            Zadaszony
-                        </label>
-                    </div>
+                <div className={styles.addParkingButtonContainer}>
+                    <Link to="/owner/parking/add" className={styles.actionButton}>
+                        <button>Dodaj nowy parking</button>
+                    </Link>
                 </div>
 
                 <div className={styles.parkingsSection}>
@@ -222,16 +130,11 @@ const OwnerParkingsPage: React.FC = () => {
                                         )}
 
                                         <div className={styles.buttonContainer}>
-                                            {/* Tutaj możesz dodać przyciski do edycji/usuwania/przeglądania szczegółów parkingu */}
                                             <Link to={`/owner/parking/${parking.parking_id}/edit`} className={styles.actionButton}>
                                                 <button>Edytuj</button>
                                             </Link>
                                             <Link to={`/owner/parking/${parking.parking_id}/details`} className={styles.actionButton}>
                                                 <button>Szczegóły</button>
-                                            </Link>
-                                            {/* Przycisk do dodawania nowego parkingu */}
-                                            <Link to="/owner/parking/add" className={styles.actionButton}>
-                                                <button>Dodaj nowy parking</button>
                                             </Link>
                                         </div>
                                     </div>

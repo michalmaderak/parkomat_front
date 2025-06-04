@@ -13,12 +13,16 @@ h1 {
 }
 
 .grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex; /* Zmieniamy na flexbox */
+    align-items: center; /* Wyrównujemy elementy w pionie do środka */
     gap: 20px;
+    flex-wrap: wrap; /* Pozwala na zawijanie elementów na mniejszych ekranach */
+    margin-bottom: 20px; /* Dodajemy margines, żeby oddzielić od reszty contentu */
 
-    @media (min-width: 768px) {
-        grid-template-columns: 1fr 3fr;
+    /* Na mniejszych ekranach, aby elementy nie były zbyt małe, mogą się układać w kolumnach */
+    @media (max-width: 767px) {
+        flex-direction: column;
+        align-items: stretch; /* Rozciągnij elementy na całą szerokość */
     }
 }
 
@@ -33,54 +37,45 @@ h1 {
 }
 
 .search {
+    flex-grow: 1; /* Pozwala polu wyszukiwania rozciągnąć się na dostępną przestrzeń */
     input {
-        width: 100%;
+        width: 100%; /* Upewniamy się, że input zajmuje całą szerokość swojego kontenera */
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: 4px;
         font-size: 1rem;
-        margin-bottom: 20px;
+        margin-bottom: 0; /* Usuwamy dolny margines, bo teraz elementy są w jednym rzędzie */
     }
 }
 
-.tags {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.addParkingButtonContainer {
+    margin-bottom: 0; /* Usuwamy dolny margines */
+    text-align: right; /* Wyrównujemy przycisk do prawej (w kontenerze flex) */
 
-    .tagTitle {
-        font-weight: bold;
-        margin-bottom: 15px;
-        color: #555;
-        text-transform: uppercase;
-        font-size: 0.9em;
-    }
+    /* Usuwamy media query, bo teraz grid kontroluje układ */
+    /* @media (max-width: 767px) {
+        text-align: center;
+    } */
 
-    .filterGroup {
-        margin-bottom: 20px;
+    .actionButton button {
+        background-color: #28a745;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease;
+        white-space: nowrap; /* Zapobiega zawijaniu tekstu na przycisku */
 
-        .filterTitle {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            cursor: pointer;
-
-            input[type="checkbox"] {
-                margin-right: 8px;
-                cursor: pointer;
-            }
+        &:hover {
+            background-color: #218838;
         }
     }
 }
 
 .parkingsSection {
+    width: 100%; /* Ważne: upewnij się, że ta sekcja zawsze zajmuje całą szerokość poniżej */
     h2 {
         margin-top: 0;
         margin-bottom: 20px;
