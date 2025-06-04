@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext'; // Upewnij się, że ścieżka jest poprawna
 import axiosClient from '../../api/axiosClient'; // Zakładam, że używasz axiosClient do zapytań
 import { toast } from 'react-toastify'; // Jeśli używasz react-toastify
+import styles from './LoginPage.module.scss'; // Zmieniono nazwę pliku, żeby pasowała do przykładu
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -37,10 +38,10 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="login-page">
-      <h2>Logowanie</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+    <div className={styles.container}> {/* Użycie klasy .container z SCSS */}
+      <h2 className={styles.title}>Logowanie</h2> {/* Użycie klasy .title z SCSS */}
+      <form onSubmit={handleSubmit} className={styles.form}> {/* Użycie klasy .form z SCSS */}
+        <div className={styles.formGroup}> {/* Użycie klasy .formGroup z SCSS */}
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -48,9 +49,10 @@ const LoginPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className={styles.input}
           />
         </div>
-        <div>
+        <div className={styles.formGroup}> {/* Użycie klasy .formGroup z SCSS */}
           <label htmlFor="password">Hasło:</label>
           <input
             type="password"
@@ -58,9 +60,10 @@ const LoginPage: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className={styles.input}
           />
         </div>
-        <button type="submit">Zaloguj</button>
+        <button type="submit" className={styles.button}>Zaloguj</button> {/* Użycie klasy .button z SCSS */}
       </form>
     </div>
   );
