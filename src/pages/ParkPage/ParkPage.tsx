@@ -39,10 +39,10 @@ const ParkPage: React.FC = () => {
                 const placeGroups = parking.place_groups || [];
                 // Zmiana: typy w backendzie to "car", "bus", "motorcycle", a nie "osobowy" itp.
                 return (
-                    (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase() === 'car')) ||
-                    (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase() === 'bus')) ||
-                    (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase() === 'motorcycle'))
-                );
+                    (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase() === 'samochód osobowy')) ||
+                    (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase() === 'autobus')) ||
+                    (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase() === 'motocykl'))
+                );
             });
         }
 
