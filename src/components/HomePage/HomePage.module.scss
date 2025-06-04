@@ -19,7 +19,7 @@
 .parkListContainer {
     margin-left: 200px;
     flex: 1; // Zajmuje dostępną przestrzeń (np. 1/3)
-    max-height: 70vh; // Ogranicz wysokość listy i dodaj scroll
+    max-height: 100vh; // Ogranicz wysokość listy i dodaj scroll
     overflow-y: auto; // Pokaż pasek przewijania, gdy lista jest za długa
     padding-right: 10px; // Mały odstęp od paska przewijania
     padding: 15px;
