@@ -169,17 +169,27 @@ const ParkingDetailsPage: React.FC = () => {
         }
 
         const reservationsArray: PlaceGroupsRequestDto[] = Object.entries(selectedVehicles).map(([type, quantity]) => ({
-            type: type,
-            quantity: quantity,
-        }));
+    type: type,
+    quantity: quantity,
+}));
 
-        const reservationData: ReservationDto = {
-            reservationStartDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
-            reservationEndDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
-            reserveEmail: emailFromModal,
-            parkingId: parseInt(parkingId, 10),
-            reservations: reservationsArray,
-        };
+// To jest obiekt, który ma zostać wysłany jako payload
+const reservationData: ReservationDto = {
+    reservationStartDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
+    reservationEndDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
+    reserveEmail: emailFromModal,
+    parkingId: parseInt(parkingId, 10),
+    reservations: reservationsArray, // TUTAJ! Upewnij się, że to jest to, co wysyłasz
+};
+
+console.log('Dane rezerwacji do wysłania:', reservationData); // Sprawdź to dokładnie w konsoli
+
+try {
+    const response = await reservationAPI.createReservation(reservationData); // Wysyłasz 'reservationData'
+    // ...
+} catch (err: unknown) {
+        // ...
+        }
 
         console.log('Dane rezerwacji do wysłania:', reservationData);
 

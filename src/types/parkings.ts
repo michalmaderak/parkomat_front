@@ -7,11 +7,11 @@ export interface Parking {
   longitude: number | null;
   park_id: number; // lub string
   // NOWE POLA:
-  imageUrl?: string; // <--- DODANE/UPEWNIJ SIĘ, ŻE JEST
+  imageUrl?: string | null;  // <--- DODANE/UPEWNIJ SIĘ, ŻE JEST
   address?: string;  // <--- DODANE
   description?: string; // Krótki opis parkingu
   manager_id?: number | null; // ID managera, jeśli jest przechowywane bezpośrednio
   manager?: User | null; // Obiekt managera, jeśli jest zagnieżdżony lub pobierany osobno
 
-   place_groups?: PlaceGroup[]; // <--- NOWE POLE
+  place_groups?: PlaceGroup[]; // <--- NOWE POLE
 }

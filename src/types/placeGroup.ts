@@ -3,4 +3,5 @@ export interface PlaceGroup {
   group_id: number; // lub string
   quantity: number;
   type: string;
+  parking_id: number; // Add this line
 }
