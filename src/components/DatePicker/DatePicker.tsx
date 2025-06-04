@@ -43,14 +43,6 @@ const DatePicker: React.FC<DatePickerProps> = ({ onDateSelect /*, initialDate */
                         onChange={handleArrivalDateChange} // Używamy nowego handlera
                     />
                 </div>
-                <div>
-                    <label>Data wyjazdu:</label>
-                    <input
-                        type="date"
-                        value={departureDate}
-                        onChange={handleDepartureDateChange}
-                    />
-                </div>
             </div>
             {/* Usunięcie selektora typu podróży, jeśli nie jest używany */}
             {/* <div className="trip-type">

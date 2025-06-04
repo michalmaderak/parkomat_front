@@ -15,17 +15,26 @@ import DatePicker from '../../components/DatePicker/DatePicker';
 import { Plus } from 'lucide-react';
 import ReservationCard from '../../components/ReservationCard/ReservationCard';
 import ReservationModal from '../../components/ReservationModal/ReservationModal';
-import ReservationSuccessModal from '../../components/ReservationSuccessModal/ReservationSuccessModal'; // Importujemy nowy modal sukcesu
+import ReservationSuccessModal from '../../components/ReservationSuccessModal/ReservationSuccessModal';
 
 import { reservationAPI, ReservationDto, PlaceGroupsRequestDto } from '../../api/reservationApi.ts';
 import { format } from 'date-fns';
-import axios from 'axios';
+import axios from 'axios'; // Nadal używamy axios do sprawdzania błędów z response.data
+
+// NOWY TYP: Odpowiedź z endpointu daily-vehicle-counts
+interface FreeSpotsDto {
+    reservationCount: number;
+    type: string;
+}
 
 const placeTypesMap: Record<string, { label: string; icon: string }> = {
     car: { label: 'samochód osobowy', icon: '🚗' },
     bus: { label: 'autobus', icon: '🚌' },
     motorcycle: { label: 'motocykl', icon: '🏍️' },
 };
+
+// Adres bazowy Twojego backendu
+const API_BASE_URL = 'http://localhost:8080/api'; // Dostosuj, jeśli Twój backend działa na innym porcie/adresie
 
 const ParkingDetailsPage: React.FC = () => {
     const { parkingId } = useParams<{ parkingId: string }>();
@@ -35,12 +44,17 @@ const ParkingDetailsPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const [selectedVehicles, setSelectedVehicles] = useState<Record<string, number>>({});
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false); // Nowy stan dla modalu sukcesu
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
     const [reserveEmail, setReserveEmail] = useState<string>('');
     const [reservationMessage, setReservationMessage] = useState<string>('');
+
+    const [reservedSpotsDaily, setReservedSpotsDaily] = useState<Record<string, number>>({});
+    const [isLoadingSpots, setIsLoadingSpots] = useState<boolean>(false);
+    const [spotsError, setSpotsError] = useState<string>('');
+
 
     useEffect(() => {
         if (!parkingId) {
@@ -81,6 +95,60 @@ const ParkingDetailsPage: React.FC = () => {
         fetchDetails();
     }, [parkingId]);
 
+
+    // --- Effect do pobierania wolnych miejsc na podstawie wybranej daty i parkingu (zmodyfikowany na fetch) ---
+    useEffect(() => {
+        const fetchAvailableSpots = async () => {
+            if (!parkingId || !selectedDate) {
+                setReservedSpotsDaily({});
+                return;
+            }
+
+            setIsLoadingSpots(true);
+            setSpotsError('');
+            try {
+                const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+                const parsedParkingId = parseInt(parkingId, 10);
+
+                // Użycie funkcji fetch zamiast axios/reportsApi
+                const response = await fetch(
+                    `${API_BASE_URL}/reservations/quantity/${parsedParkingId}?data=${formattedDate}`
+                );
+
+                if (!response.ok) {
+                    // Obsługa błędów HTTP (np. 400, 404, 500)
+                    const errorData = await response.json().catch(() => ({ message: 'Nieznany błąd' })); // Próba parsowania ciała błędu
+                    throw new Error(`Błąd HTTP: ${response.status} - ${errorData.message || response.statusText}`);
+                }
+
+                const data: FreeSpotsDto[] = await response.json(); // Parsowanie odpowiedzi JSON
+
+                const newReservedSpots: Record<string, number> = {};
+                data.forEach(item => {
+                    newReservedSpots[item.type] = item.reservationCount;
+                });
+                setReservedSpotsDaily(newReservedSpots);
+            } catch (err: any) { // Użyj 'any' lub Error jeśli wiesz, co rzucasz
+                let errorMessage = "Nie udało się pobrać danych o zajętych miejscach.";
+                if (err instanceof Error) {
+                    errorMessage += ` Błąd: ${err.message}`;
+                } else if (typeof err === 'string') {
+                    errorMessage += ` Błąd: ${err}`;
+                } else {
+                    errorMessage += ` Nieznany błąd: ${JSON.stringify(err)}`;
+                }
+                setSpotsError(errorMessage);
+                console.error('Błąd pobierania wolnych miejsc (fetch):', err);
+                setReservedSpotsDaily({});
+            } finally {
+                setIsLoadingSpots(false);
+            }
+        };
+
+        fetchAvailableSpots();
+    }, [parkingId, selectedDate]);
+
+
     const addVehicleSelection = (typeId: string) => {
         setSelectedVehicles(prev => ({
             ...prev,
@@ -110,6 +178,7 @@ const ParkingDetailsPage: React.FC = () => {
 
     const handleDateChange = (date: Date) => {
         setSelectedDate(date);
+        setSelectedVehicles({});
     };
 
     const handleOpenReservationModal = () => {
@@ -169,27 +238,17 @@ const ParkingDetailsPage: React.FC = () => {
         }
 
         const reservationsArray: PlaceGroupsRequestDto[] = Object.entries(selectedVehicles).map(([type, quantity]) => ({
-    type: type,
-    quantity: quantity,
-}));
+            type: type,
+            quantity: quantity,
+        }));
 
-// To jest obiekt, który ma zostać wysłany jako payload
-const reservationData: ReservationDto = {
-    reservationStartDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
-    reservationEndDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
-    reserveEmail: emailFromModal,
-    parkingId: parseInt(parkingId, 10),
-    reservations: reservationsArray, // TUTAJ! Upewnij się, że to jest to, co wysyłasz
-};
-
-console.log('Dane rezerwacji do wysłania:', reservationData); // Sprawdź to dokładnie w konsoli
-
-try {
-    const response = await reservationAPI.createReservation(reservationData); // Wysyłasz 'reservationData'
-    // ...
-} catch (err: unknown) {
-        // ...
-        }
+        const reservationData: ReservationDto = {
+            reservationStartDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
+            reservationEndDate: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : '',
+            reserveEmail: emailFromModal,
+            parkingId: parseInt(parkingId, 10),
+            reservations: reservationsArray,
+        };
 
         console.log('Dane rezerwacji do wysłania:', reservationData);
 
@@ -199,21 +258,48 @@ try {
             console.log('Rezerwacja utworzona pomyślnie:', response);
             setReservationMessage('Rezerwacja została pomyślnie utworzona!');
             setSelectedVehicles({});
-            setSelectedDate(null);
             setReserveEmail('');
 
-            setIsModalOpen(false); // Zamknij modal rezerwacji
-            setIsSuccessModalOpen(true); // Otwórz modal sukcesu
+            setIsModalOpen(false);
+            setIsSuccessModalOpen(true);
 
-        } catch (err: unknown) {
+            // Ważne: Po pomyślnej rezerwacji, odśwież dane o wolnych miejscach
+            // Wywołaj ponownie funkcję fetchAvailableSpots
+            if (parkingId && selectedDate) {
+                const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+                const parsedParkingId = parseInt(parkingId, 10);
+
+                // Użyj funkcji fetch ponownie do odświeżenia
+                const updatedResponse = await fetch(
+                    `${API_BASE_URL}/reports/daily-vehicle-counts/${parsedParkingId}?data=${formattedDate}`
+                );
+
+                if (!updatedResponse.ok) {
+                    const errorData = await updatedResponse.json().catch(() => ({ message: 'Nieznany błąd' }));
+                    throw new Error(`Błąd HTTP: ${updatedResponse.status} - ${errorData.message || updatedResponse.statusText}`);
+                }
+                const updatedData: FreeSpotsDto[] = await updatedResponse.json();
+
+                const newReservedSpots: Record<string, number> = {};
+                updatedData.forEach(item => {
+                    newReservedSpots[item.type] = item.reservationCount;
+                });
+                setReservedSpotsDaily(newReservedSpots);
+            }
+
+        } catch (err: any) {
             let errorMessage = "Nie udało się utworzyć rezerwacji.";
-            if (axios.isAxiosError(err) && err.response) {
+            if (axios.isAxiosError(err) && err.response) { // Nadal używamy axios.isAxiosError do lepszej obsługi błędów Axios
                 errorMessage += ` Status: ${err.response.status}. Wiadomość: ${err.response.data.message || err.response.data}`;
             } else if (err instanceof Error) {
                 errorMessage += ` Błąd: ${err.message}`;
+            } else if (typeof err === 'string') {
+                errorMessage += ` Błąd: ${err}`;
+            } else {
+                errorMessage += ` Nieznany błąd: ${JSON.stringify(err)}`;
             }
             console.error('Szczegóły błędu rezerwacji:', err);
-            setReservationMessage(errorMessage); // Komunikat błędu zostanie wyświetlony w ReservationModal
+            setReservationMessage(errorMessage);
         }
     };
 
@@ -225,7 +311,6 @@ try {
         !isNaN(parking.latitude) &&
         !isNaN(parking.longitude);
 
-    // Zmieniony kod dla ładowania
     if (isLoading) {
         return (
             <div className={styles.loadingContainer}>
@@ -260,25 +345,38 @@ try {
                     {parking.place_groups && parking.place_groups.length > 0 ? (
                         <div className={styles.placeGroupsSection}>
                             <h4>Dostępne typy miejsc:</h4>
-                            <ul>
-                                {parking.place_groups.map((group: PlaceGroup) => {
-                                    const placeTypeInfo = placeTypesMap[group.type];
-                                    return (
-                                        <li key={group.group_id} className={styles.placeGroupItem}>
-                                            <span className={styles.placeGroupIcon}>{placeTypeInfo?.icon}</span>
-                                            <span className={styles.placeGroupType}>{placeTypeInfo?.label || group.type}:</span>
-                                            <span className={styles.placeGroupQuantity}>{group.quantity} miejsc</span>
-                                            <button
-                                                onClick={() => addVehicleSelection(group.type)}
-                                                className={styles.vehicleButton}
-                                                title={`Dodaj ${placeTypeInfo?.label || group.type}`}
-                                            >
-                                                <Plus className={styles.plusIcon} />
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
+                            {isLoadingSpots && <p className={styles.loadingSpots}>Ładowanie dostępności miejsc...</p>}
+                            {spotsError && <p className={styles.error}>{spotsError}</p>}
+                            {!isLoadingSpots && !spotsError && (
+                                <ul>
+                                    {parking.place_groups.map((group: PlaceGroup) => {
+                                        const placeTypeInfo = placeTypesMap[group.type];
+                                        const totalCapacity = group.quantity || 0;
+                                        const reservedCount = reservedSpotsDaily[group.type] || 0;
+                                        const availableSpots = totalCapacity - reservedCount;
+
+                                        return (
+                                            <li key={group.group_id} className={styles.placeGroupItem}>
+                                                <span className={styles.placeGroupIcon}>{placeTypeInfo?.icon}</span>
+                                                <span className={styles.placeGroupType}>{placeTypeInfo?.label || group.type}:</span>
+                                                <span className={styles.placeGroupQuantity}>
+                                                    {availableSpots > 0
+                                                        ? `${availableSpots} wolnych miejsc`
+                                                        : 'Brak wolnych miejsc'}
+                                                </span>
+                                                <button
+                                                    onClick={() => addVehicleSelection(group.type)}
+                                                    className={styles.vehicleButton}
+                                                    title={`Dodaj ${placeTypeInfo?.label || group.type}`}
+                                                    disabled={availableSpots <= 0}
+                                                >
+                                                    <Plus className={styles.plusIcon} />
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            )}
                         </div>
                     ) : (
                         <p>Brak informacji o typach miejsc dla tego parkingu.</p>
@@ -348,15 +446,14 @@ try {
                 onClose={handleCloseReservationModal}
                 onConfirmReservation={handleConfirmReservation}
                 totalSelectedVehicles={totalSelectedVehicles}
-                reservationMessage={reservationMessage} // Przekazujemy wiadomość do modalu
+                reservationMessage={reservationMessage}
                 parkingName={parking.name}
                 selectedDate={selectedDate}
             />
-            {/* Nowy modal sukcesu */}
             <ReservationSuccessModal
                 isOpen={isSuccessModalOpen}
                 onClose={handleCloseSuccessModal}
-                email={reserveEmail} // Przekazujemy email, aby wyświetlić go w modalu
+                email={reserveEmail}
             />
         </div>
     );
