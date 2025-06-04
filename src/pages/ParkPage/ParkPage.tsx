@@ -1,4 +1,3 @@
-// src/pages/ParkPage/ParkPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styles from './ParkPage.module.scss';
@@ -17,6 +16,7 @@ const ParkPage: React.FC = () => {
     const [isLoadingParkings, setIsLoadingParkings] = useState<boolean>(true);
     const [errorPark, setErrorPark] = useState<string>('');
     const [errorParkings, setErrorParkings] = useState<string>('');
+    const [searchTerm, setSearchTerm] = useState<string>(''); // NOWY STAN: do wyszukiwania po nazwie
     const [vehicleFilters, setVehicleFilters] = useState({
         car: false,
         bus: false,
@@ -29,40 +29,33 @@ const ParkPage: React.FC = () => {
 
     // Filtrowanie parkingów
     useEffect(() => {
-        if (parkings.length === 0) return;
+        if (parkings.length === 0) {
+            setFilteredParkings([]); // Resetuj filtr, jeśli nie ma parkingów
+            return;
+        }
 
         let result = parkings;
+
+        // NOWA ZMIANA: Filtrowanie po nazwie parkingu
+        if (searchTerm) {
+            result = result.filter(parking =>
+                parking.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
 
         // Filtrowanie po pojeździe
         if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motorcycle) {
             result = result.filter(parking => {
                 const placeGroups = parking.place_groups || [];
-                // Zmiana: typy w backendzie to "car", "bus", "motorcycle", a nie "osobowy" itp.
                 return (
-                    (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase() === 'samochód osobowy')) ||
-                    (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase() === 'autobus')) ||
-                    (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase() === 'motocykl'))
-                );
-            });
-        }
-
-        // Filtrowanie po typie miejsca
-        if (placeFilters.covered || placeFilters.uncovered) {
-            result = result.filter(parking => {
-                const placeGroups = parking.place_groups || [];
-                // Zakładam, że backend ma jakieś pole określające zadaszenie, np. "isCovered: boolean"
-                // lub typy miejsc jak "covered_car", "uncovered_car". Musisz to dostosować.
-                // Jeśli "type" oznacza tylko rodzaj pojazdu, to musisz dodać inne pole w Parking/PlaceGroup.
-                // Na potrzeby przykładu zmieniam, by szukać w typie "covered" lub "uncovered".
-                return (
-                    (placeFilters.covered && placeGroups.some(g => g.type.toLowerCase().includes('covered'))) ||
-                    (placeFilters.uncovered && placeGroups.some(g => g.type.toLowerCase().includes('uncovered')))
+                    (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase() === 'samochód osobowy')) ||
+                    (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase() === 'autobus')) ||
+                    (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase() === 'motocykl'))
                 );
             });
         }
-
         setFilteredParkings(result);
-    }, [vehicleFilters, placeFilters, parkings]);
+    }, [searchTerm, vehicleFilters, placeFilters, parkings]); // Dodano searchTerm do zależności
 
     const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
         setVehicleFilters(prev => ({
@@ -76,6 +69,11 @@ const ParkPage: React.FC = () => {
             ...prev,
             [type]: !prev[type]
         }));
+    };
+
+    // NOWA FUNKCJA: Obsługa zmiany w polu wyszukiwania
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
     };
 
     useEffect(() => {
@@ -111,7 +109,7 @@ const ParkPage: React.FC = () => {
             try {
                 const parkingsData = await parkingsApi.getParkingsByParkId(parkId);
                 setParkings(parkingsData);
-                setFilteredParkings(parkingsData);
+                setFilteredParkings(parkingsData); // Początkowo ustaw wszystkie parkingi
             } catch (err: unknown) {
                 console.error("Błąd podczas pobierania parkingów:", err);
                 let errorMessage = "Nie udało się pobrać listy parkingów.";
@@ -155,7 +153,12 @@ const ParkPage: React.FC = () => {
                 </div>
 
                 <div className={styles.search}>
-                    <input type="text" placeholder="Szukaj parkingu..." />
+                    <input
+                        type="text"
+                        placeholder="Szukaj parkingu..."
+                        value={searchTerm} // Podłączenie wartości
+                        onChange={handleSearchChange} // Podłączenie funkcji obsługującej zmianę
+                    />
                 </div>
 
                 <div className={styles.tags}>
@@ -189,25 +192,7 @@ const ParkPage: React.FC = () => {
                         </label>
                     </div>
 
-                    <div className={styles.filterGroup}>
-                        <p className={styles.filterTitle}>Typ miejsca:</p>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={placeFilters.uncovered}
-                                onChange={() => handlePlaceFilterChange('uncovered')}
-                            />
-                            Bez dachu
-                        </label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={placeFilters.covered}
-                                onChange={() => handlePlaceFilterChange('covered')}
-                            />
-                            Zadaszony
-                        </label>
-                    </div>
+
                 </div>
 
                 <div className={styles.parkingsSection}>
@@ -220,8 +205,6 @@ const ParkPage: React.FC = () => {
                         <ul className={styles.parkingList}>
                             {filteredParkings.map((parking) => (
                                 <li key={parking.parking_id} className={styles.parkingItem}>
-                                    {/* --- ZMIANA TUTAJ: Dodano Fragment JSX <>...</> --- */}
-                                    <>
                                         {parking.imageUrl && (
                                             <img
                                                 src={parking.imageUrl}
@@ -246,6 +229,9 @@ const ParkPage: React.FC = () => {
                                                             <span className={styles.placeGroupIcon}>
                                                                 {group.quantity > 0 ? '🟢' : '🔴'}
                                                             </span>
+                                                            <span className={styles.placeGroupQuantity}>
+                                                                (Dostępnych: {group.quantity})
+                                                            </span>
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -261,7 +247,6 @@ const ParkPage: React.FC = () => {
                                                 </Link>
                                             </div>
                                         </div>
-                                    </> {/* --- KONIEC ZMIANY: Zamknięcie Fragmentu JSX --- */}
                                 </li>
                             ))}
                         </ul>
