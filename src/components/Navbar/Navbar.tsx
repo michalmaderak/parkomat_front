@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
           // --- Zalogowany Użytkownik ---
           <>
             {/* Moje Parkingi */}
-            <Link to="/parkpage" className={styles.authItem}>
+            <Link to="/owner/parkings" className={styles.authItem}>
               <img src={parkingIcon} alt="Moje Parkingi" className={styles.authIcon} />
               <span className={styles.authText}>Moje Parkingi</span>
             </Link>

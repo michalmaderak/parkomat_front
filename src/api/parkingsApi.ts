@@ -1,7 +1,7 @@
-// src/api/parkingsApi.ts (jeśli tworzysz nowy plik)
-import axiosClient from "./axiosClient"; // Użyj tego samego axiosClient
+// src/api/parkingsApi.ts
+import axiosClient from "./axiosClient";
 import { Parking } from "../types/parkings"; // Zaimportuj typ Parking
-import axios from 'axios';
+
 export const parkingsApi = {
   getParkingsByParkId: async (parkId: string | number): Promise<Parking[]> => {
     // Endpoint może wyglądać tak: /api/parks/{parkId}/parkings
@@ -10,13 +10,25 @@ export const parkingsApi = {
     const response = await axiosClient.get<Parking[]>(`/parks/${parkId}/parkings`);
     return response.data;
   },
-  // DODAJ TĘ METODĘ:
+
   getById: async (parkingId: string | number): Promise<Parking> => {
-    const res = await axios.get(`/api/parkings/${parkingId}`);
+    // Endpoint dla pojedynczego parkingu to zazwyczaj /api/parkings/{parkingId}
+    const res = await axiosClient.get(`/parkings/${parkingId}`);
     return res.data;
-  }
-  // Możesz tu dodać inne operacje CRUD dla parkingów, jeśli potrzebujesz
-  // createParking: async (parkingData: Omit<Parking, 'parking_id'>): Promise<Parking> => { ... }
-  // updateParking: async (parkingId: string | number, parkingData: Partial<Parking>): Promise<Parking> => { ... }
-  // deleteParking: async (parkingId: string | number): Promise<void> => { ... }
+  },
+
+  // Zaktualizowana metoda: Pobieranie parkingów dla danego MENADŻERA
+  // Teraz endpoint API to /api/managers/{managerId}/parkings
+  getParkingsByManagerId: async (managerId: string | number): Promise<Parking[]> => { // Zmieniono nazwę parametru na managerId
+    try {
+      // Zmieniono ścieżkę z '/owners/' na '/managers/'
+      const response = await axiosClient.get<Parking[]>(`/managers/${managerId}/parkings`);
+      return response.data;
+    } catch (error) {
+      console.error(`Błąd podczas pobierania parkingów dla menadżera ${managerId}:`, error); // Zaktualizowano komunikat
+      throw error; // Przekaż błąd dalej
+    }
+  },
+
+  // ... (pozostałe metody, jeśli są)
 };

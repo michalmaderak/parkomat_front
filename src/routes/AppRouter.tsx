@@ -11,6 +11,11 @@ import HomePage from "../components/HomePage/HomePage";
 import ParkPage from "../pages/ParkPage/ParkPage";
 import ParkingDetailsPage from "../pages/ParkingPage/ParkingDetailsPage";
 import CancelReservationPage from "../pages/CancelReservationPage/CancelReservationPage";
+// --- NOWE IMPORTY ---
+import OwnerParkingsPage from "../pages/OwnerParkingsPage/OwnerParkingsPage";
+//import AddEditParkingPage from "../pages/AddEditParkingPage/AddEditParkingPage"; // Będziemy potrzebować komponentu do dodawania/edycji
+// import OwnerParkingDetailsPage from "../pages/OwnerParkingDetailsPage/OwnerParkingDetailsPage"; // Opcjonalnie, jeśli chcesz inną stronę szczegółów dla właściciela
+// --- KONIEC NOWYCH IMPORTÓW ---
 
 const App: React.FC = () => {
   return (
@@ -22,15 +27,34 @@ const App: React.FC = () => {
           <Route path="/test" element={<TestApiComponent />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
-          
+
+          {/* Trasy dla klientów */}
           <Route path="/parkpage/:parkId" element={<ParkPage />} />
           <Route path="/cancelreservationpage" element={<CancelReservationPage />} />
-           <Route path="/parking/:parkingId" element={<ParkingDetailsPage />} />
+          <Route path="/parking/:parkingId" element={<ParkingDetailsPage />} />
+
+          {/* --- NOWE TRASY DLA WŁAŚCICIELI --- */}
+          {/* Strona z listą parkingów dla zalogowanego właściciela */}
+          <Route path="/owner/parkings" element={<OwnerParkingsPage />} />
+
+          {/* Strona do dodawania nowego parkingu */}
+          {/* Zakładam, że AddEditParkingPage będzie służyć zarówno do dodawania, jak i edycji */}
+          {/* <Route path="/owner/parking/add" element={<AddEditParkingPage />} />
+
+          {/* Strona do edycji istniejącego parkingu */}
+          {/* <Route path="/owner/parking/:parkingId/edit" element={<AddEditParkingPage />} /> */} */
+
+          {/* Opcjonalnie: Strona szczegółów parkingu dla właściciela, jeśli różni się od ParkingDetailsPage dla klienta */}
+          {/* Jeśli OwnerParkingDetailsPage jest taka sama jak ParkingDetailsPage, możesz użyć ParkingDetailsPage */}
+          {/* <Route path="/owner/parking/:parkingId" element={<OwnerParkingDetailsPage />} /> */}
+          {/* Albo po prostu przekierować do ParkingDetailsPage, jeśli funkcjonalność jest taka sama, ale zmieniasz logikę przycisków na podstawie roli użytkownika */}
+          {/* <Route path="/owner/parking/:parkingId" element={<ParkingDetailsPage isOwnerView={true} />} /> */}
+          {/* --- KONIEC NOWYCH TRAS DLA WŁAŚCICIELI --- */}
         </Routes>
       </div>
       <ToastContainer />
     </Router>
   );
 };
-//<Route path="/parkpage" element={<ParkPage />} />
+
 export default App;
