@@ -82,7 +82,7 @@ const OwnerParkingsPage: React.FC = () => {
                 </div>
 
                 <div className={styles.addParkingButtonContainer}>
-                    <Link to="/owner/parking/add" className={styles.actionButton}>
+                    <Link to="/owner/parkingAdd" className={styles.actionButton}>
                         <button>Dodaj nowy parking</button>
                     </Link>
                 </div>
