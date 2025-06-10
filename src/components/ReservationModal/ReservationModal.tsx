@@ -7,9 +7,10 @@ interface ReservationModalProps {
   onClose: () => void;
   onConfirmReservation: (email: string) => void;
   totalSelectedVehicles: number;
+  totalPrice: number; // NOWY PROP: Całkowita cena rezerwacji
   reservationMessage: string;
-  parkingName: string; // Nowy prop do wyświetlenia nazwy parkingu
-  selectedDate: Date | null; // Data wybrana w DatePickerze
+  parkingName: string;
+  selectedDate: Date | null;
 }
 
 const ReservationModal: React.FC<ReservationModalProps> = ({
@@ -17,6 +18,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
   onClose,
   onConfirmReservation,
   totalSelectedVehicles,
+  totalPrice, // Użyj nowego propa
   reservationMessage,
   parkingName,
   selectedDate,
@@ -40,6 +42,11 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
           {selectedDate && <> na dzień **{selectedDate.toLocaleDateString()}**</>}.
         </p>
 
+        {/* NOWY ELEMENT: Wyświetlanie całkowitej ceny */}
+        <p className={styles.priceSummary}>
+          Całkowity koszt rezerwacji: **{totalPrice.toFixed(2)} PLN**
+        </p>
+
         <div className={styles.formGroup}>
           <label htmlFor="reservationEmail">Twój adres e-mail:</label>
           <input
@@ -56,7 +63,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
         <button
           className={styles.confirmButton}
           onClick={handleConfirm}
-          disabled={!email.trim() || !/\S+@\S+\.\S+/.test(email)} // Walidacja emaila przed aktywacją przycisku
+          disabled={!email.trim() || !/\S+@\S+\.\S+/.test(email)}
         >
           Zarezerwuj miejsce
         </button>

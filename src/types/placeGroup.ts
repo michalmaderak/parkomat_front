@@ -4,4 +4,5 @@ export interface PlaceGroup {
   quantity: number;
   type: string;
   parking_id: number; // Add this line
+  price: number;
 }

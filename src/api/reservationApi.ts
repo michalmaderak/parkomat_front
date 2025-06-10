@@ -16,6 +16,7 @@ export interface ReservationDto {
     reserveEmail: string;
     parkingId: number; // Zmieniono na number, zgodnie z Twoim backendem (Long w Javie)
     reservations: PlaceGroupsRequestDto[];
+    totalPrice: number;
 }
 
 // Definicja interfejsu dla odpowiedzi z backendu (np. Reservation model)

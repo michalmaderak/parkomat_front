@@ -3,13 +3,16 @@ import React from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Trash2, Minus } from 'lucide-react';
 import styles from './ReservationCard.module.scss';
+import { PlaceGroup } from '../../types/placeGroup';
 
 interface ReservationCardProps {
   selectedVehicles: Record<string, number>;
   onRemoveVehicle: (type: string) => void;
   onDecreaseVehicle: (type: string) => void;
   totalSelectedVehicles: number;
+  totalSelectedSpotPrices: number;
   onOpenReservationModal: () => void; // Nowy prop do otwierania modalu
+  parkingPlaceGroups: PlaceGroup[];
 }
 
 const ReservationCard: React.FC<ReservationCardProps> = ({
@@ -17,7 +20,9 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
   onRemoveVehicle,
   onDecreaseVehicle,
   totalSelectedVehicles,
+  totalSelectedSpotPrices,
   onOpenReservationModal, // Używamy nowego propa
+  parkingPlaceGroups,
 }) => {
   const isReservationPossible = totalSelectedVehicles > 0; // Warunek, kiedy przycisk powinien być aktywny
 
@@ -59,9 +64,11 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
           )}
         </div>
         {totalSelectedVehicles > 0 && (
-            <div className={styles.reservationTotal}>
-              łącznie: <span>{totalSelectedVehicles} miejsce parkingowe{totalSelectedVehicles !== 1 ? 'we' : ''}</span>
-            </div>
+            <><div className={styles.reservationTotal}>
+            łącznie: <span>{totalSelectedVehicles} miejsc parkingowych</span>
+          </div><div className={styles.reservationTotal}>
+            do zapłaty: <span>{totalSelectedSpotPrices}</span>  złotych
+            </div></>
         )}
         {/* Nowy przycisk "Przejdź do rezerwacji" */}
         <button

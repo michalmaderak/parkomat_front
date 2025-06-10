@@ -19,7 +19,7 @@ import ReservationSuccessModal from '../../components/ReservationSuccessModal/Re
 
 import { reservationAPI, ReservationDto, PlaceGroupsRequestDto } from '../../api/reservationApi.ts';
 import { format } from 'date-fns';
-import axios from 'axios'; // Nadal używamy axios do sprawdzania błędów z response.data
+import axios from 'axios';
 
 // NOWY TYP: Odpowiedź z endpointu daily-vehicle-counts
 interface FreeSpotsDto {
@@ -30,11 +30,11 @@ interface FreeSpotsDto {
 const placeTypesMap: Record<string, { label: string; icon: string }> = {
     car: { label: 'samochód osobowy', icon: '🚗' },
     bus: { label: 'autobus', icon: '🚌' },
-    motorcycle: { label: 'motocykl', icon: '🏍️' },
+    motocycle: { label: 'motocykl', icon: '🏍️' },
 };
 
 // Adres bazowy Twojego backendu
-const API_BASE_URL = 'http://localhost:8080/api'; // Dostosuj, jeśli Twój backend działa na innym porcie/adresie
+const API_BASE_URL = 'http://localhost:8080/api';
 
 const ParkingDetailsPage: React.FC = () => {
     const { parkingId } = useParams<{ parkingId: string }>();
@@ -55,7 +55,9 @@ const ParkingDetailsPage: React.FC = () => {
     const [isLoadingSpots, setIsLoadingSpots] = useState<boolean>(false);
     const [spotsError, setSpotsError] = useState<string>('');
 
+    const [totalPrice, setTotalPrice] = useState<number>(0);
 
+    // Efekt do pobierania szczegółów parkingu i powiązanych danych
     useEffect(() => {
         if (!parkingId) {
             setError("Nieprawidłowy ID parkingu.");
@@ -96,7 +98,7 @@ const ParkingDetailsPage: React.FC = () => {
     }, [parkingId]);
 
 
-    // --- Effect do pobierania wolnych miejsc na podstawie wybranej daty i parkingu (zmodyfikowany na fetch) ---
+    // Efekt do pobierania wolnych miejsc na podstawie wybranej daty i parkingu
     useEffect(() => {
         const fetchAvailableSpots = async () => {
             if (!parkingId || !selectedDate) {
@@ -110,25 +112,23 @@ const ParkingDetailsPage: React.FC = () => {
                 const formattedDate = format(selectedDate, 'yyyy-MM-dd');
                 const parsedParkingId = parseInt(parkingId, 10);
 
-                // Użycie funkcji fetch zamiast axios/reportsApi
                 const response = await fetch(
                     `${API_BASE_URL}/reservations/quantity/${parsedParkingId}?data=${formattedDate}`
                 );
 
                 if (!response.ok) {
-                    // Obsługa błędów HTTP (np. 400, 404, 500)
-                    const errorData = await response.json().catch(() => ({ message: 'Nieznany błąd' })); // Próba parsowania ciała błędu
+                    const errorData = await response.json().catch(() => ({ message: 'Nieznany błąd' }));
                     throw new Error(`Błąd HTTP: ${response.status} - ${errorData.message || response.statusText}`);
                 }
 
-                const data: FreeSpotsDto[] = await response.json(); // Parsowanie odpowiedzi JSON
+                const data: FreeSpotsDto[] = await response.json();
 
                 const newReservedSpots: Record<string, number> = {};
                 data.forEach(item => {
                     newReservedSpots[item.type] = item.reservationCount;
                 });
                 setReservedSpotsDaily(newReservedSpots);
-            } catch (err: any) { // Użyj 'any' lub Error jeśli wiesz, co rzucasz
+            } catch (err: any) {
                 let errorMessage = "Nie udało się pobrać danych o zajętych miejscach.";
                 if (err instanceof Error) {
                     errorMessage += ` Błąd: ${err.message}`;
@@ -147,6 +147,20 @@ const ParkingDetailsPage: React.FC = () => {
 
         fetchAvailableSpots();
     }, [parkingId, selectedDate]);
+
+    // Efekt do przeliczania całkowitej ceny
+    useEffect(() => {
+        let currentTotalPrice = 0;
+        // Zastosuj optional chaining i nullish coalescing dla bezpieczeństwa
+        parking?.place_groups?.forEach(group => { // Access place_groups only if parking is not null/undefined
+            const quantity = selectedVehicles[group.type] || 0;
+            // Sprawdź, czy group.price jest liczbą przed użyciem
+            if (typeof group.price === 'number') {
+                currentTotalPrice += quantity * group.price;
+            }
+        });
+        setTotalPrice(parseFloat(currentTotalPrice.toFixed(2)));
+    }, [selectedVehicles, parking]); // Zależności: przeliczaj, gdy zmienią się wybrane pojazdy lub dane parkingu
 
 
     const addVehicleSelection = (typeId: string) => {
@@ -178,7 +192,7 @@ const ParkingDetailsPage: React.FC = () => {
 
     const handleDateChange = (date: Date) => {
         setSelectedDate(date);
-        setSelectedVehicles({});
+        setSelectedVehicles({}); // Resetuj wybrane pojazdy przy zmianie daty
     };
 
     const handleOpenReservationModal = () => {
@@ -201,6 +215,36 @@ const ParkingDetailsPage: React.FC = () => {
         setSelectedDate(null);
         setReserveEmail('');
         setReservationMessage('');
+        // Po zamknięciu modala sukcesu, odśwież dane o wolnych miejscach
+        if (parkingId && selectedDate) {
+            const fetchAvailableSpotsAfterReservation = async () => {
+                if (!parkingId || !selectedDate) return;
+                setIsLoadingSpots(true);
+                setSpotsError('');
+                try {
+                    const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+                    const parsedParkingId = parseInt(parkingId, 10);
+                    const response = await fetch(
+                        `${API_BASE_URL}/reservations/quantity/${parsedParkingId}?data=${formattedDate}`
+                    );
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ message: 'Nieznany błąd' }));
+                        throw new Error(`Błąd HTTP: ${response.status} - ${errorData.message || response.statusText}`);
+                    }
+                    const data: FreeSpotsDto[] = await response.json();
+                    const newReservedSpots: Record<string, number> = {};
+                    data.forEach(item => {
+                        newReservedSpots[item.type] = item.reservationCount;
+                    });
+                    setReservedSpotsDaily(newReservedSpots);
+                } catch (err: any) {
+                    console.error('Błąd odświeżania wolnych miejsc po rezerwacji:', err);
+                } finally {
+                    setIsLoadingSpots(false);
+                }
+            };
+            fetchAvailableSpotsAfterReservation();
+        }
     };
 
     const handleConfirmReservation = async (emailFromModal: string) => {
@@ -210,6 +254,7 @@ const ParkingDetailsPage: React.FC = () => {
         console.log('selectedDate:', selectedDate);
         console.log('totalSelectedVehicles:', Object.values(selectedVehicles).reduce((sum, val) => sum + val, 0));
         console.log('reserveEmail (z modalu):', emailFromModal);
+        console.log('totalPrice (w momencie rezerwacji):', totalPrice);
 
         if (!parkingId) {
             console.log('handleConfirmReservation: Brak ID parkingu.');
@@ -248,6 +293,7 @@ const ParkingDetailsPage: React.FC = () => {
             reserveEmail: emailFromModal,
             parkingId: parseInt(parkingId, 10),
             reservations: reservationsArray,
+            totalPrice: parseFloat(totalPrice.toFixed(2)),
         };
 
         console.log('Dane rezerwacji do wysłania:', reservationData);
@@ -263,33 +309,41 @@ const ParkingDetailsPage: React.FC = () => {
             setIsModalOpen(false);
             setIsSuccessModalOpen(true);
 
-            // Ważne: Po pomyślnej rezerwacji, odśwież dane o wolnych miejscach
-            // Wywołaj ponownie funkcję fetchAvailableSpots
             if (parkingId && selectedDate) {
-                const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-                const parsedParkingId = parseInt(parkingId, 10);
+                const fetchAvailableSpotsAfterReservation = async () => {
+                    if (!parkingId || !selectedDate) return;
+                    setIsLoadingSpots(true);
+                    setSpotsError('');
+                    try {
+                        const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+                        const parsedParkingId = parseInt(parkingId, 10);
+                        const updatedResponse = await fetch(
+                            `${API_BASE_URL}/reservations/quantity/${parsedParkingId}?data=${formattedDate}`
+                        );
 
-                // Użyj funkcji fetch ponownie do odświeżenia
-                const updatedResponse = await fetch(
-                    `${API_BASE_URL}/reports/daily-vehicle-counts/${parsedParkingId}?data=${formattedDate}`
-                );
+                        if (!updatedResponse.ok) {
+                            const errorData = await updatedResponse.json().catch(() => ({ message: 'Nieznany błąd' }));
+                            throw new Error(`Błąd HTTP: ${updatedResponse.status} - ${errorData.message || updatedResponse.statusText}`);
+                        }
+                        const updatedData: FreeSpotsDto[] = await updatedResponse.json();
 
-                if (!updatedResponse.ok) {
-                    const errorData = await updatedResponse.json().catch(() => ({ message: 'Nieznany błąd' }));
-                    throw new Error(`Błąd HTTP: ${updatedResponse.status} - ${errorData.message || updatedResponse.statusText}`);
-                }
-                const updatedData: FreeSpotsDto[] = await updatedResponse.json();
-
-                const newReservedSpots: Record<string, number> = {};
-                updatedData.forEach(item => {
-                    newReservedSpots[item.type] = item.reservationCount;
-                });
-                setReservedSpotsDaily(newReservedSpots);
+                        const newReservedSpots: Record<string, number> = {};
+                        updatedData.forEach(item => {
+                            newReservedSpots[item.type] = item.reservationCount;
+                        });
+                        setReservedSpotsDaily(newReservedSpots);
+                    } catch (err: any) {
+                        console.error('Błąd odświeżania wolnych miejsc po rezerwacji:', err);
+                    } finally {
+                        setIsLoadingSpots(false);
+                    }
+                };
+                fetchAvailableSpotsAfterReservation();
             }
 
         } catch (err: any) {
             let errorMessage = "Nie udało się utworzyć rezerwacji.";
-            if (axios.isAxiosError(err) && err.response) { // Nadal używamy axios.isAxiosError do lepszej obsługi błędów Axios
+            if (axios.isAxiosError(err) && err.response) {
                 errorMessage += ` Status: ${err.response.status}. Wiadomość: ${err.response.data.message || err.response.data}`;
             } else if (err instanceof Error) {
                 errorMessage += ` Błąd: ${err.message}`;
@@ -342,6 +396,7 @@ const ParkingDetailsPage: React.FC = () => {
                         </div>
                     )}
 
+                    {/* Check if parking.place_groups exists before trying to access its length */}
                     {parking.place_groups && parking.place_groups.length > 0 ? (
                         <div className={styles.placeGroupsSection}>
                             <h4>Dostępne typy miejsc:</h4>
@@ -349,11 +404,13 @@ const ParkingDetailsPage: React.FC = () => {
                             {spotsError && <p className={styles.error}>{spotsError}</p>}
                             {!isLoadingSpots && !spotsError && (
                                 <ul>
-                                    {parking.place_groups.map((group: PlaceGroup) => {
+                                    {/* Use optional chaining here as well for safety */}
+                                    {parking.place_groups?.map((group: PlaceGroup) => {
                                         const placeTypeInfo = placeTypesMap[group.type];
                                         const totalCapacity = group.quantity || 0;
                                         const reservedCount = reservedSpotsDaily[group.type] || 0;
                                         const availableSpots = totalCapacity - reservedCount;
+                                        const spotPrice = group.price || 0;
 
                                         return (
                                             <li key={group.group_id} className={styles.placeGroupItem}>
@@ -364,11 +421,16 @@ const ParkingDetailsPage: React.FC = () => {
                                                         ? `${availableSpots} wolnych miejsc`
                                                         : 'Brak wolnych miejsc'}
                                                 </span>
+                                                <span className={styles.placeGroupType}>
+                                                    {spotPrice > 0
+                                                        ? `Cena: ${spotPrice.toFixed(2)} złotych`
+                                                        : 'Brak informacji o cenie'}
+                                                </span>
                                                 <button
                                                     onClick={() => addVehicleSelection(group.type)}
                                                     className={styles.vehicleButton}
                                                     title={`Dodaj ${placeTypeInfo?.label || group.type}`}
-                                                    disabled={availableSpots <= 0}
+                                                    disabled={availableSpots <= 0 || (selectedVehicles[group.type] || 0) >= availableSpots}
                                                 >
                                                     <Plus className={styles.plusIcon} />
                                                 </button>
@@ -423,6 +485,7 @@ const ParkingDetailsPage: React.FC = () => {
                         <div className={styles.datePickerSection}>
                             <DatePicker
                                 onDateSelect={handleDateChange}
+                                //selectedDate={selectedDate}
                             />
                         </div>
 
@@ -431,7 +494,10 @@ const ParkingDetailsPage: React.FC = () => {
                             onRemoveVehicle={removeVehicleSelection}
                             onDecreaseVehicle={decreaseVehicleSelection}
                             totalSelectedVehicles={totalSelectedVehicles}
+                            totalSelectedSpotPrices={totalPrice}
                             onOpenReservationModal={handleOpenReservationModal}
+                            // Pass parking.place_groups as an empty array if undefined
+                            parkingPlaceGroups={parking.place_groups || []}
                         />
 
                         {reservationMessage && !isModalOpen && !isSuccessModalOpen && (
@@ -446,6 +512,7 @@ const ParkingDetailsPage: React.FC = () => {
                 onClose={handleCloseReservationModal}
                 onConfirmReservation={handleConfirmReservation}
                 totalSelectedVehicles={totalSelectedVehicles}
+                totalPrice={totalPrice}
                 reservationMessage={reservationMessage}
                 parkingName={parking.name}
                 selectedDate={selectedDate}
