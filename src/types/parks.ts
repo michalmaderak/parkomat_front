@@ -5,4 +5,5 @@ export interface Park {
   longitude: number;
   parkLogoLink: string;
   mapOutline: string;
+  sentence: string;
 }

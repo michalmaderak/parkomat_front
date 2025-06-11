@@ -70,7 +70,7 @@ const HomePage: React.FC = () => {
                   <Link to={`/parkpage/${park.id}`} className={styles.parkCard}>
                     <div className={styles.parkText}>
                       <h3 className={styles.parkName}>{park.name}</h3>
-                      <p className={styles.parkQuote}>"Dusza przyrody urok wzniosłości"</p>
+                      <p className={styles.parkQuote}>{park.sentence}</p>
                     </div>
                     <img
                       src={park.parkLogoLink}
