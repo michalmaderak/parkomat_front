@@ -22,7 +22,7 @@ $box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 .error {
   color: $error-color;
   background-color: $error-background;
-  border: 1px solid lighten($error-color, 10%); // Poprawiono funkcję grid na lighten
+  border: 1px solid $error-color, 10%; // Poprawiono funkcję grid na lighten
   border-radius: $base-border-radius;
 }
 
@@ -219,7 +219,7 @@ $box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 0;
 
     &:hover {
-      background-color: darken($accent-color, 10%); // ZMIENIONO Z #0056b3 na ciemniejszy odcień $accent-color
+      background-color: $accent-color, 10%; // ZMIENIONO Z #0056b3 na ciemniejszy odcień $accent-color
     }
 
     .plusIcon {

@@ -69,9 +69,9 @@ const ParkPage: React.FC = () => {
                 const parkingReserved = reservedSpotsAllParkings[parking.parking_id] || {};
 
                 return (
-                    (vehicleFilters.car && placeGroups.some(g => g.type === 'car' && ((g.quantity || 0) - (parkingReserved.car || 0)) > 0)) ||
-                    (vehicleFilters.bus && placeGroups.some(g => g.type === 'bus' && ((g.quantity || 0) - (parkingReserved.bus || 0)) > 0)) ||
-                    (vehicleFilters.motocycle && placeGroups.some(g => g.type === 'motocycle' && ((g.quantity || 0) - (parkingReserved.motocycle || 0)) > 0))
+                    (vehicleFilters.car && placeGroups.some(g => g.type === 'samochód osobowy' && ((g.quantity || 0) - (parkingReserved.car || 0)) > 0)) ||
+                    (vehicleFilters.bus && placeGroups.some(g => g.type === 'autobus' && ((g.quantity || 0) - (parkingReserved.bus || 0)) > 0)) ||
+                    (vehicleFilters.motocycle && placeGroups.some(g => g.type === 'motocykl' && ((g.quantity || 0) - (parkingReserved.motocycle || 0)) > 0))
                 );
             });
         }
