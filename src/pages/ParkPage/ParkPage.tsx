@@ -1,3 +1,5 @@
+// src/pages/ParkPage/ParkPage.tsx
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styles from './ParkPage.module.scss';
@@ -6,6 +8,25 @@ import { Parking } from '../../types/parkings';
 import { parksApi } from '../../api/parksApi';
 import { parkingsApi } from '../../api/parkingsApi';
 import { PlaceGroup } from '../../types/placeGroup';
+import { format } from 'date-fns';
+import DatePicker from '../../components/DatePicker/DatePicker';
+
+interface FreeSpotsDto {
+    reservationCount: number;
+    type: string;
+}
+
+interface ParkingReservedSpots {
+    [parkingId: string]: Record<string, number>;
+}
+
+const API_BASE_URL = 'http://localhost:8080/api';
+
+const placeTypesMap: Record<string, { label: string; icon: string }> = {
+    car: { label: 'samochód osobowy', icon: '🚗' },
+    bus: { label: 'autobus', icon: '🚌' },
+    motocycle: { label: 'motocykl', icon: '🏍️' },
+};
 
 const ParkPage: React.FC = () => {
     const { parkId } = useParams<{ parkId: string }>();
@@ -13,47 +34,50 @@ const ParkPage: React.FC = () => {
     const [parkings, setParkings] = useState<Parking[]>([]);
     const [filteredParkings, setFilteredParkings] = useState<Parking[]>([]);
     const [isLoadingPark, setIsLoadingPark] = useState<boolean>(true);
-    const [isLoadingParkings, setIsLoadingParkings] = useState<boolean>(true);
+    const [isLoadingParkings, setIsLoadingParkArgs] = useState<boolean>(true);
     const [errorPark, setErrorPark] = useState<string>('');
     const [errorParkings, setErrorParkings] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [vehicleFilters, setVehicleFilters] = useState({
         car: false,
         bus: false,
-        motorcycle: false
+        motocycle: false
     });
-    // Usunięto: const [placeFilters, setPlaceFilters] = useState...
 
-    // Filtrowanie parkingów
+    const [reservedSpotsAllParkings, setReservedSpotsAllParkings] = useState<ParkingReservedSpots>({});
+    const [isLoadingSpots, setIsLoadingSpots] = useState<boolean>(false);
+    const [spotsError, setSpotsError] = useState<string>('');
+
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+    const handleDateSelect = (date: Date) => {
+        setSelectedDate(date);
+    };
+
     useEffect(() => {
-        if (parkings.length === 0 && searchTerm === '' && !vehicleFilters.car && !vehicleFilters.bus && !vehicleFilters.motorcycle) {
-            setFilteredParkings([]); // Resetuj filtr, jeśli nie ma parkingów i brak aktywnych filtrów
-            return;
-        }
-
         let result = parkings;
 
-        // Filtrowanie po nazwie parkingu
         if (searchTerm) {
             result = result.filter(parking =>
                 parking.name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
-        // Filtrowanie po pojeździe
-        if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motorcycle) {
+        if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motocycle) {
             result = result.filter(parking => {
                 const placeGroups = parking.place_groups || [];
+                const parkingReserved = reservedSpotsAllParkings[parking.parking_id] || {};
+
                 return (
-                    (vehicleFilters.car && placeGroups.some(g => g.type.toLowerCase() === 'samochód osobowy')) ||
-                    (vehicleFilters.bus && placeGroups.some(g => g.type.toLowerCase() === 'autobus')) ||
-                    (vehicleFilters.motorcycle && placeGroups.some(g => g.type.toLowerCase() === 'motocykl'))
+                    (vehicleFilters.car && placeGroups.some(g => g.type === 'car' && ((g.quantity || 0) - (parkingReserved.car || 0)) > 0)) ||
+                    (vehicleFilters.bus && placeGroups.some(g => g.type === 'bus' && ((g.quantity || 0) - (parkingReserved.bus || 0)) > 0)) ||
+                    (vehicleFilters.motocycle && placeGroups.some(g => g.type === 'motocycle' && ((g.quantity || 0) - (parkingReserved.motocycle || 0)) > 0))
                 );
             });
         }
 
         setFilteredParkings(result);
-    }, [searchTerm, vehicleFilters, parkings]); // Usunięto placeFilters z zależności
+    }, [searchTerm, vehicleFilters, parkings, reservedSpotsAllParkings]);
 
     const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
         setVehicleFilters(prev => ({
@@ -70,7 +94,7 @@ const ParkPage: React.FC = () => {
         if (!parkId) {
             setErrorPark("Nieprawidłowy ID parku.");
             setIsLoadingPark(false);
-            setIsLoadingParkings(false);
+            setIsLoadingParkArgs(false);
             return;
         }
 
@@ -94,12 +118,11 @@ const ParkPage: React.FC = () => {
         };
 
         const fetchParkings = async () => {
-            setIsLoadingParkings(true);
+            setIsLoadingParkArgs(true);
             setErrorParkings('');
             try {
                 const parkingsData = await parkingsApi.getParkingsByParkId(parkId);
                 setParkings(parkingsData);
-                setFilteredParkings(parkingsData); // Początkowo ustaw wszystkie parkingi
             } catch (err: unknown) {
                 console.error("Błąd podczas pobierania parkingów:", err);
                 let errorMessage = "Nie udało się pobrać listy parkingów.";
@@ -110,13 +133,81 @@ const ParkPage: React.FC = () => {
                 setParkings([]);
                 setFilteredParkings([]);
             } finally {
-                setIsLoadingParkings(false);
+                setIsLoadingParkArgs(false);
             }
         };
 
         fetchParkDetails();
         fetchParkings();
     }, [parkId]);
+
+    useEffect(() => {
+        const fetchAllAvailableSpots = async () => {
+            if (parkings.length === 0 || !selectedDate) {
+                setReservedSpotsAllParkings({});
+                return;
+            }
+
+            setIsLoadingSpots(true);
+            setSpotsError('');
+            const currentReservedSpots: ParkingReservedSpots = {};
+            const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+
+            try {
+                const promises = parkings.map(async (parking) => {
+                    if (!parking.parking_id) return;
+
+                    const parsedParkingId = parseInt(parking.parking_id.toString(), 10);
+                    if (isNaN(parsedParkingId)) {
+                        console.warn(`Nieprawidłowy ID parkingu dla pobierania: ${parking.parking_id}`);
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(
+                            `${API_BASE_URL}/reservations/quantity/${parsedParkingId}?data=${formattedDate}`
+                        );
+
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({ message: 'Nieznany błąd' }));
+                            console.error(`Błąd HTTP dla parkingu ${parking.name} (${parking.parking_id}): ${response.status} - ${errorData.message || response.statusText}`);
+                            return;
+                        }
+
+                        const data: FreeSpotsDto[] = await response.json();
+                        const parkingSpots: Record<string, number> = {};
+                        data.forEach(item => {
+                            parkingSpots[item.type] = item.reservationCount;
+                        });
+                        currentReservedSpots[parking.parking_id.toString()] = parkingSpots;
+                    } catch (err: any) {
+                        console.error(`Błąd pobierania wolnych miejsc dla parkingu ${parking.name} (${parking.parking_id}):`, err);
+                    }
+                });
+
+                await Promise.all(promises);
+                setReservedSpotsAllParkings(currentReservedSpots);
+
+            } catch (err: any) {
+                let errorMessage = "Nie udało się pobrać danych o zajętych miejscach dla wszystkich parkingów.";
+                if (err instanceof Error) {
+                    errorMessage += ` Błąd: ${err.message}`;
+                } else if (typeof err === 'string') {
+                    errorMessage += ` Błąd: ${err}`;
+                } else {
+                    errorMessage += ` Nieznany błąd: ${JSON.stringify(err)}`;
+                }
+                setSpotsError(errorMessage);
+                setReservedSpotsAllParkings({});
+            } finally {
+                setIsLoadingSpots(false);
+            }
+        };
+
+        if (parkings.length > 0 && selectedDate) {
+            fetchAllAvailableSpots();
+        }
+    }, [parkings, selectedDate]);
 
     if (isLoadingPark || isLoadingParkings) {
         return (
@@ -180,24 +271,35 @@ const ParkPage: React.FC = () => {
                         <label>
                             <input
                                 type="checkbox"
-                                checked={vehicleFilters.motorcycle}
-                                onChange={() => handleVehicleFilterChange('motorcycle')}
+                                checked={vehicleFilters.motocycle}
+                                onChange={() => handleVehicleFilterChange('motocycle')}
                             />
                             Motocykl
                         </label>
+                    </div>
+
+                    {/* Zmiana tutaj: Umieszczamy DatePicker bezpośrednio pod tytułem "Data" */}
+                    <div className={styles.filterGroup}>
+                        <p className={styles.filterTitle}>Data:</p>
+                        <DatePicker onDateSelect={handleDateSelect} />
                     </div>
                 </div>
 
                 <div className={styles.parkingsSection}>
                     <h2>Parkingi {filteredParkings.length !== parkings.length && `(${filteredParkings.length}/${parkings.length})`}</h2>
                     {errorParkings && <p className={styles.error}>{errorParkings}</p>}
-                    {!isLoadingParkings && filteredParkings.length === 0 && (
+                    {isLoadingSpots && <p className={styles.loadingSpots}>Sprawdzanie dostępności miejsc dla {selectedDate ? format(selectedDate, 'dd.MM.yyyy') : 'wybranej daty'}...</p>}
+                    {spotsError && <p className={styles.error}>{spotsError}</p>}
+                    {!isLoadingParkings && filteredParkings.length === 0 && !isLoadingSpots && (
                         <p>Brak dostępnych parkingów spełniających kryteria.</p>
                     )}
-                    {filteredParkings.length > 0 && (
+                    {filteredParkings.length > 0 && !isLoadingSpots ? (
                         <ul className={styles.parkingList}>
-                            {filteredParkings.map((parking) => (
-                                <li key={parking.parking_id} className={styles.parkingItem}>
+                            {filteredParkings.map((parking) => {
+                                const parkingReservedSpots = reservedSpotsAllParkings[parking.parking_id] || {};
+
+                                return (
+                                    <li key={parking.parking_id} className={styles.parkingItem}>
                                         {parking.imageUrl && (
                                             <img
                                                 src={parking.imageUrl}
@@ -216,17 +318,26 @@ const ParkPage: React.FC = () => {
 
                                             {parking.place_groups && parking.place_groups.length > 0 ? (
                                                 <ul className={styles.placeGroupsList}>
-                                                    {parking.place_groups.map((group: PlaceGroup) => (
-                                                        <li key={group.group_id} className={styles.placeGroupItem}>
-                                                            <span className={styles.placeGroupType}>{group.type}:</span>
-                                                            <span className={styles.placeGroupIcon}>
-                                                                {group.quantity > 0 ? '🟢' : '🔴'}
-                                                            </span>
-                                                            <span className={styles.placeGroupQuantity}>
-                                                                (Dostępnych: {group.quantity})
-                                                            </span>
-                                                        </li>
-                                                    ))}
+                                                    {parking.place_groups.map((group: PlaceGroup) => {
+                                                        const totalCapacity = group.quantity || 0;
+                                                        const reservedCount = parkingReservedSpots[group.type] || 0;
+                                                        const availableSpots = totalCapacity - reservedCount;
+                                                        const placeTypeInfo = placeTypesMap[group.type];
+
+                                                        return (
+                                                            <li key={group.group_id} className={styles.placeGroupItem}>
+                                                                <span className={styles.placeGroupType}>
+                                                                    {placeTypeInfo?.label || group.type}:
+                                                                </span>
+                                                                <span className={styles.placeGroupIcon}>
+                                                                    {availableSpots > 0 ? '🟢' : '🔴'}
+                                                                </span>
+                                                                <span className={styles.placeGroupQuantity}>
+                                                                    (Dostępnych: {availableSpots})
+                                                                </span>
+                                                            </li>
+                                                        );
+                                                    })}
                                                 </ul>
                                             ) : (
                                                 <p>Brak informacji o typach miejsc.</p>
@@ -240,10 +351,11 @@ const ParkPage: React.FC = () => {
                                                 </Link>
                                             </div>
                                         </div>
-                                </li>
-                            ))}
+                                    </li>
+                                );
+                            })}
                         </ul>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </div >
