@@ -16,7 +16,12 @@ export const parkingsApi = {
     const res = await axiosClient.get(`/parkings/${parkingId}`);
     return res.data;
   },
-
+  async update(id: number, data: Parking): Promise<Parking> { // Zmieniono typ ID na number
+        // Przyjmujemy, że endpoint do aktualizacji to PUT /api/parkings/{id}
+        // Upewnij się, że backend jest w stanie przyjąć zaktualizowany obiekt Parking
+        const response = await axiosClient.put<Parking>(`/parkings/${id}`, data);
+        return response.data;
+    },
   // Zaktualizowana metoda: Pobieranie parkingów dla danego MENADŻERA
   // Teraz endpoint API to /api/managers/{managerId}/parkings
   getParkingsByManagerId: async (managerId: string | number): Promise<Parking[]> => { // Zmieniono nazwę parametru na managerId

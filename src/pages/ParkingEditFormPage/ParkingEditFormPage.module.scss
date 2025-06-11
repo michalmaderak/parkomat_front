@@ -1,200 +1,253 @@
-/* src/pages/ParkingEditFormPage/ParkingEditFormPage.module.scss */
+// src/pages/EditParkingPage/ParkingEditFormPage.module.scss
 
-/* --- Loading Spinner Styles --- */
-.loadingContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-    font-size: 1.5em;
-    color: #333;
-}
+// Zmienne kolorów
+$primary-color: #344B3C;
+$background-color: #f5f5f5;
+$border-color: #e0e0e0;
+$text-color: #333;
+$error-color: #dc3545; // Kolor dla błędów
+$success-color: #28a745; // Kolor dla sukcesu
+$button-hover-color: $primary-color, 10%; // Ciemniejszy odcień na hover
+$button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover dla anuluj
 
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #007bff;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
-}
+// Kontener główny strony edycji parkingu
+.editParkingPageContainer {
+  max-width: 800px;
+  margin: 40px auto; // Większy margines dla lepszego wyglądu
+  padding: 30px;
+  background-color: #ffffff; // Białe tło dla formularza
+  border: 1px solid $border-color;
+  border-radius: 12px; // Lekko większy border-radius
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); // Delikatny cień
+  font-family: 'Arial', sans-serif;
+  color: $text-color;
 
-.loadingText {
-    font-size: 1.2em;
-    color: #555;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-/* --- End Loading Spinner Styles --- */
-
-
-.container {
-    padding: 30px;
-    max-width: 800px;
-    margin: 30px auto;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    font-family: 'Arial', sans-serif;
-    color: #333;
-}
-
-.header {
-    font-size: 2.2em;
-    font-weight: bold;
-    color: #007bff;
+  h1 {
     text-align: center;
+    color: $primary-color;
     margin-bottom: 30px;
+    font-size: 2em;
+    font-weight: bold;
+    border-bottom: 2px solid $primary-color; // Podkreślenie nagłówka
     padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+  }
 }
 
-.sectionTitle {
-    font-size: 1.6em;
-    font-weight: bold;
-    color: #555;
-    margin-top: 30px;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
+// Formularz
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; // Odstępy między grupami formularza
 }
 
 .formGroup {
+  margin-bottom: 0; // Już mamy gap w form, więc resetujemy margin-bottom
+  label {
+    display: block;
+    margin-bottom: 8px; // Większy odstęp między etykietą a polem
+    font-size: 1.1em;
+    font-weight: 600; // Lekko pogrubiona etykieta
+    color: $primary-color;
+  }
+
+  input[type="text"],
+  input[type="url"],
+  input[type="number"],
+  textarea {
+    width: 100%;
+    padding: 12px 15px; // Większy padding
+    border: 1px solid $border-color;
+    border-radius: 8px; // Zaokrąglone rogi pól
+    font-size: 1em;
+    color: $text-color;
+    background-color: $background-color; // Lekkie tło dla pól
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color; // Podświetlenie na focus
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.2); // Delikatny cień na focus
+    }
+  }
+
+  textarea {
+    resize: vertical; // Pozwól użytkownikowi zmieniać wysokość
+    min-height: 100px; // Minimalna wysokość textarea
+  }
+}
+
+// Sekcja grup miejsc (place_groups)
+.placeGroupsSection {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px dashed $border-color; // Delikatna linia rozdzielająca
+
+  h2 {
+    font-size: 1.6em;
+    color: $primary-color;
     margin-bottom: 20px;
-    label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 8px;
-        color: #444;
-        font-size: 1em;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    select,
-    .textarea {
-        width: calc(100% - 20px);
-        padding: 12px;
-        border: 1px solid #cccccc;
-        border-radius: 6px;
-        font-size: 1em;
-        box-sizing: border-box;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-
-        &:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
-            outline: none;
-        }
-    }
-
-    input[type="file"] {
-        padding: 5px;
-        border: 1px solid #cccccc;
-        border-radius: 6px;
-        background-color: #f8f8f8;
-        cursor: pointer;
-    }
-
-    .inputWrapper {
-        position: relative;
-    }
+    text-align: center;
+    font-weight: bold;
+  }
 }
 
-.textarea {
-    resize: vertical; /* Pozwala na pionową zmianę rozmiaru */
-    min-height: 100px;
-}
+.placeGroupItem {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid $border-color, 5%;
+  border-radius: 8px;
+  background-color: $background-color, 3%; // Lżejsze tło dla pojedynczych grup
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 
-.currentImagePreview {
-    margin-top: 15px;
-    border: 1px dashed #cccccc;
+  label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: $text-color;
+  }
+
+  input[type="number"] {
+    width: 100%;
     padding: 10px;
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    font-size: 1em;
+  }
+}
+
+// Komunikaty o błędach i sukcesie
+.error {
+  color: $error-color;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+.success {
+  color: $success-color;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+// Przyciski akcji
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  gap: 20px; // Odstęp między przyciskami
+
+  button {
+    flex: 1; // Rozciągnij przyciski, aby zajęły dostępną przestrzeń
+    padding: 15px 25px;
+    border: none;
     border-radius: 8px;
-    background-color: #f9f9f9;
-    text-align: center;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 
-    p {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: 0.9em;
-        color: #666;
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
+  }
 
-    img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  button[type="submit"] {
+    background-color: $primary-color;
+    color: white;
+
+    &:not(:disabled):hover {
+      background-color: $button-hover-color;
+      transform: translateY(-2px); // Lekkie uniesienie na hover
     }
+  }
+
+  .cancelButton {
+    background-color: $background-color;
+    border: 1px solid $border-color;
+    color: $text-color;
+
+    &:not(:disabled):hover {
+      background-color: $button-cancel-hover-color;
+      transform: translateY(-2px);
+    }
+  }
 }
 
-.buttons {
-    display: flex;
-    justify-content: flex-end;
+// Style dla ładowania (loading)
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: $primary-color;
+  font-size: 1.2em;
+}
+
+.spinner {
+  border: 4px solid rgba($primary-color, 0.2);
+  border-top: 4px solid $primary-color;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+.loadingText {
+  margin-top: 10px;
+  color: $text-color;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Media Queries dla responsywności */
+@media (max-width: 768px) {
+  .editParkingPageContainer {
+    margin: 20px 15px;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.8em;
+  }
+
+  .formGroup label {
+    font-size: 1em;
+  }
+
+  .formGroup input,
+  .formGroup textarea {
+    padding: 10px 12px;
+  }
+
+  .actions {
+    flex-direction: column;
     gap: 15px;
-    margin-top: 40px;
+  }
 
-    button {
-        padding: 12px 25px;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1em;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-
-        &:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-    }
-
-    .clear {
-        background-color: #6c757d;
-        color: white;
-
-        &:hover:not(:disabled) {
-            background-color: #5a6268;
-            transform: translateY(-2px);
-        }
-    }
-
-    .submit {
-        background-color: #28a745;
-        color: white;
-
-        &:hover:not(:disabled) {
-            background-color: #218838;
-            transform: translateY(-2px);
-        }
-    }
+  .actions button {
+    padding: 12px 20px;
+    font-size: 1em;
+  }
 }
 
-.errorMessage {
-    color: #dc3545;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
+@media (max-width: 480px) {
+  .editParkingPageContainer {
+    margin: 15px 10px;
+    padding: 15px;
+  }
 
-.successMessage {
-    color: #28a745;
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: bold;
+  h1 {
+    font-size: 1.5em;
+  }
+
+  .placeGroupItem {
+    padding: 12px;
+  }
 }

@@ -1,168 +1,123 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import styles from './ParkingEditFormPage.module.scss'; // Stwórz nowy plik SCSS
-import { Parking } from '../../types/parkings'; // Upewnij się, że masz typ Parking
+// src/pages/EditParkingPage/EditParkingPage.tsx
 
-// Typ dla stanu formularza edycji
-interface EditFormState {
-    park: string;
-    address: string;
-    parkingName: string;
-    description: string; // Dodajemy pole opisu
-    car: number;
-    motorcycle: number;
-    bus: number;
-    imageUrl: string | null; // Dodajemy pole na URL zdjęcia, jeśli jest
-}
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { parkingsApi } from '../../api/parkingsApi';
+import { Parking } from '../../types/parkings'; // Importuj tylko Parking
+import { PlaceGroup } from '../../types/placeGroup'; // Upewnij się, że Parking i PlaceGroup są importowane
+import styles from './ParkingEditFormPage.module.scss';
 
-const ParkingEditFormPage: React.FC = () => {
-    const { parkingId } = useParams<{ parkingId: string }>(); // Pobierz ID parkingu z URL
-    const [formState, setFormState] = useState<EditFormState>({
-        park: '',
-        address: '',
-        parkingName: '',
-        description: '', // Domyślnie puste
-        car: 0,
-        motorcycle: 0,
-        bus: 0,
-        imageUrl: null,
-    });
-    const [file, setFile] = useState<File | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+const EditParkingPage: React.FC = () => {
+    const { parkingId: paramParkingId } = useParams<{ parkingId: string }>(); // Zmieniamy nazwę, żeby uniknąć kolizji
+    const navigate = useNavigate();
+
+    // Upewniamy się, że parkingId jest liczbą
+    const parsedParkingId = paramParkingId ? parseInt(paramParkingId, 10) : null;
+
+    const [parking, setParking] = useState<Parking | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
-    const [successMessage, setSuccessMessage] = useState<string>('');
+    // formData może być Parking (jeśli zawsze chcemy wysyłać pełen obiekt)
+    // lub Partial<Parking> jeśli tylko zmienione pola
+    const [formData, setFormData] = useState<Partial<Parking>>({});
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<string>('');
+    const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
 
-    // Symulacja ładowania danych parkingu
     useEffect(() => {
-        if (!parkingId) {
-            setError("Brak ID parkingu do edycji.");
-            setIsLoading(false);
-            return;
-        }
-
         const fetchParkingData = async () => {
-            setIsLoading(true);
-            setError('');
-            setSuccessMessage('');
+            if (parsedParkingId === null || isNaN(parsedParkingId)) {
+                setError('Nieprawidłowy ID parkingu.');
+                setIsLoading(false);
+                return;
+            }
             try {
-                // Tutaj normalnie byłoby wywołanie API do pobrania danych parkingu
-                // const parkingData = await parkingsApi.getById(parkingId);
-                // Symulujemy dane
-                const simulatedParkingData: Parking = {
-                    parking_id: parseInt(parkingId, 10),
-                    name: `Parking nr ${parkingId}`,
-                    address: `Ul. Przykładowa ${parkingId}, Kraków`,
-                    description: `To jest opis parkingu numer ${parkingId}, idealny dla odwiedzających Park Narodowy.`,
-                    imageUrl: parkingId === '1' ? 'https://via.placeholder.com/400x200?text=Parking+Image+1' : null,
-                    latitude: 50.0614300,
-                    longitude: 19.9365800,
-                    place_groups: [
-                        { group_id: 1, type: 'car', quantity: 50, parking_id: parseInt(parkingId, 10) },
-                        { group_id: 2, type: 'motorcycle', quantity: 10, parking_id: parseInt(parkingId, 10) },
-                        { group_id: 3, type: 'bus', quantity: 5, parking_id: parseInt(parkingId, 10) },
-                    ],
-                    park_id: 1, // Przykładowy park_id
-                    manager_id: 1 // Przykładowy manager_id
-                };
-
-                // Uzupełnij formularz danymi z parkingu
-                setFormState({
-                    park: 'Tatrzański Park Narodowy', // Tutaj trzeba by mapować park_id na nazwę parku
-                    address: simulatedParkingData.address || '',
-                    parkingName: simulatedParkingData.name,
-                    description: simulatedParkingData.description || '',
-                    car: simulatedParkingData.place_groups?.find(pg => pg.type === 'car')?.quantity || 0,
-                    motorcycle: simulatedParkingData.place_groups?.find(pg => pg.type === 'motorcycle')?.quantity || 0,
-                    bus: simulatedParkingData.place_groups?.find(pg => pg.type === 'bus')?.quantity || 0,
-                    imageUrl: simulatedParkingData.imageUrl || null,
+                // Używamy parsedParkingId jako liczby
+                const fetchedParking = await parkingsApi.getById(parsedParkingId);
+                setParking(fetchedParking);
+                setFormData({
+                    name: fetchedParking.name,
+                    address: fetchedParking.address,
+                    imageUrl: fetchedParking.imageUrl,
+                    description: fetchedParking.description,
+                    // Pamiętaj, aby skopiować place_groups głęboko, jeśli chcesz je modyfikować
+                    place_groups: fetchedParking.place_groups ? fetchedParking.place_groups.map(pg => ({ ...pg })) : []
                 });
             } catch (err: unknown) {
-                let errorMessage = "Nie udało się załadować danych parkingu do edycji.";
-                if (err instanceof Error) {
-                    errorMessage += ` Błąd: ${err.message}`;
-                }
-                setError(errorMessage);
+                console.error('Błąd podczas pobierania danych parkingu:', err);
+                setError('Nie udało się pobrać danych parkingu.');
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchParkingData();
-    }, [parkingId]);
+    }, [parsedParkingId]); // Zależność od parsedParkingId
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        if (e.target.type === 'file') {
-            const input = e.target as HTMLInputElement;
-            setFile(input.files ? input.files[0] : null);
-        } else if (e.target.type === 'number') {
-            setFormState((prev) => ({ ...prev, [name]: parseInt(value, 10) || 0 }));
-        } else {
-            setFormState((prev) => ({ ...prev, [name]: value }));
-        }
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+        }));
+        setSaveSuccess(false);
+        setSaveError('');
     };
 
-    const handleReset = () => {
-        // W przypadku edycji, reset może przywrócić dane pierwotnie załadowane
-        // LUB zresetować do stanu początkowego (jak w formularzu dodawania)
-        // Na potrzeby edycji, lepiej załadować ponownie dane, lub mieć kopię pierwotnych danych
-        // Tutaj po prostu zresetujemy do zera / pustych wartości, dla uproszczenia
-        setFormState({
-            park: '',
-            address: '',
-            parkingName: '',
-            description: '',
-            car: 0,
-            motorcycle: 0,
-            bus: 0,
-            imageUrl: null,
+    const handlePlaceGroupChange = (index: number, field: keyof PlaceGroup, value: string | number) => {
+        setFormData(prev => {
+            const newPlaceGroups = [...(prev.place_groups || [])];
+            if (newPlaceGroups[index]) {
+                newPlaceGroups[index] = {
+                    ...newPlaceGroups[index],
+                    [field]: field === 'quantity' ? Number(value) : value
+                };
+            }
+            return {
+                ...prev,
+                place_groups: newPlaceGroups
+            };
         });
-        setFile(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
-        setSuccessMessage('');
-        setError('');
+        setSaveSuccess(false);
+        setSaveError('');
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault(); // Zapobiegaj domyślnej akcji formularza
-        setSuccessMessage('');
-        setError('');
-        setIsLoading(true); // Ustawiamy loading na czas wysyłania
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (parsedParkingId === null || isNaN(parsedParkingId)) {
+            setSaveError('Nieprawidłowy ID parkingu do zapisu.');
+            return;
+        }
+
+        setIsSaving(true);
+        setSaveError('');
+        setSaveSuccess(false);
 
         try {
-            // Tutaj byłoby wywołanie API do aktualizacji danych parkingu
-            // Np. await parkingsApi.updateParking(parkingId, formState, file);
-            console.log(`Zapisywanie zmian dla parkingu ID: ${parkingId}`);
-            console.log("Nowe dane formularza:", formState);
-            if (file) {
-                console.log("Nowy plik do przesłania:", file.name, file.size, file.type);
-            } else if (formState.imageUrl) {
-                console.log("Istniejący URL obrazu:", formState.imageUrl);
-            } else {
-                console.log("Brak obrazu.");
-            }
+            // Składamy pełny obiekt Parking do wysłania
+            const dataToUpdate: Parking = {
+                ...parking!, // Bierzemy aktualny obiekt parkingu (już wiemy, że nie jest null)
+                ...formData, // Nadpisujemy zmienione pola z formularza
+                parking_id: parsedParkingId // Upewnij się, że ID jest poprawne i typu number
+            };
 
-            // Symulujemy opóźnienie sieci
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            setSuccessMessage("Dane parkingu zostały pomyślnie zaktualizowane!");
-            // Po sukcesie, możesz opcjonalnie zresetować pole pliku, jeśli chcesz, aby użytkownik musiał go ponownie wybrać
-            // setFile(null);
-            // if (fileInputRef.current) {
-            //     fileInputRef.current.value = "";
-            // }
-
+            // Wywołujemy parkingsApi.update z parsedParkingId (number) i pełnym obiektem Parking
+            const updatedParking = await parkingsApi.update(parsedParkingId, dataToUpdate);
+            setParking(updatedParking);
+            setSaveSuccess(true);
+            setTimeout(() => {
+                navigate(`/owner-parkings`);
+            }, 2000);
         } catch (err: unknown) {
-            let errorMessage = "Nie udało się zaktualizować danych parkingu.";
+            console.error('Błąd podczas aktualizacji danych parkingu:', err);
+            let errorMessage = 'Nie udało się zaktualizować danych parkingu.';
             if (err instanceof Error) {
                 errorMessage += ` Błąd: ${err.message}`;
             }
-            setError(errorMessage);
+            setSaveError(errorMessage);
+            setSaveSuccess(false);
         } finally {
-            setIsLoading(false); // Zakończ loading
+            setIsSaving(false);
         }
     };
 
@@ -175,163 +130,113 @@ const ParkingEditFormPage: React.FC = () => {
         );
     }
 
+    if (error) {
+        return <div className={styles.error}>{error}</div>;
+    }
+
+    if (!parking) {
+        return <div className={styles.error}>Parking nie znaleziony.</div>;
+    }
+
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                Edycja informacji o parkingu (ID: {parkingId})
-            </div>
-
-            {error && <p className={styles.errorMessage}>{error}</p>}
-            {successMessage && <p className={styles.successMessage}>{successMessage}</p>}
-
-            <form onSubmit={handleSubmit}>
-                <div className={styles.sectionTitle}>Dane podstawowe</div>
+        <div className={styles.editParkingPageContainer}>
+            <h1>Edytuj dane parkingu: {parking.name}</h1>
+            <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.formGroup}>
-                    <label htmlFor="park">Park Narodowy:</label>
-                    <div className={styles.inputWrapper}>
-                        <select
-                            id="park"
-                            name="park"
-                            value={formState.park}
-                            onChange={handleInputChange}
-                            required
-                        >
-                            <option value="" disabled>Wybierz Park Narodowy...</option>
-                            <option value="Tatrzański Park Narodowy">Tatrzański Park Narodowy</option>
-                            <option value="Wigierski Park Narodowy">Wigierski Park Narodowy</option>
-                            <option value="Ojcowski Park Narodowy">Ojcowski Park Narodowy</option>
-                            <option value="Pieniński Park Narodowy">Pieniński Park Narodowy</option>
-                            <option value="Poleski Park Narodowy">Poleski Park Narodowy</option>
-                            <option value="Roztoczański Park Narodowy">Roztoczański Park Narodowy</option>
-                            <option value="Wielkopolski Park Narodowy">Wielkopolski Park Narodowy</option>
-                            <option value="Karkonoski Park Narodowy">Karkonoski Park Narodowy</option>
-                            <option value="Babiogórski Park Narodowy">Babiogórski Park Narodowy</option>
-                            <option value="Gorczański Park Narodowy">Gorczański Park Narodowy</option>
-                            <option value="Magurski Park Narodowy">Magurski Park Narodowy</option>
-                            <option value="Białowieski Park Narodowy">Białowieski Park Narodowy</option>
-                            <option value="Kampinoski Park Narodowy">Kampinoski Park Narodowy</option>
-                            <option value="Biebrzański Park Narodowy">Biebrzański Park Narodowy</option>
-                            <option value="Bieszczadzki Park Narodowy">Bieszczadzki Park Narodowy</option>
-                            <option value="Park Narodowy Bory Tucholskie">Park Narodowy Bory Tucholskie</option>
-                            <option value="Narwiański Park Narodowy">Narwiański Park Narodowy</option>
-                            <option value="Park Narodowy Gór Stołowych">Park Narodowy Gór Stołowych</option>
-                            <option value="Słowiński Park Narodowy">Słowiński Park Narodowy</option>
-                            <option value="Świętokrzyski Park Narodowy">Świętokrzyski Park Narodowy</option>
-                            <option value="Park Narodowy Ujście Warty">Park Narodowy Ujście Warty</option>
-                            <option value="Drawieński Park Narodowy">Drawieński Park Narodowy</option>
-                            <option value="Woliński Park Narodowy">Woliński Park Narodowy</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="address">Adres:</label>
-                    <div className={styles.inputWrapper}>
-                        <input
-                            id="address"
-                            type="text"
-                            name="address"
-                            value={formState.address}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="parkingName">Nazwa parkingu:</label>
+                    <label htmlFor="name">Nazwa parkingu:</label>
                     <input
-                        id="parkingName"
                         type="text"
-                        name="parkingName"
-                        value={formState.parkingName}
-                        onChange={handleInputChange}
+                        id="name"
+                        name="name"
+                        value={formData.name || ''}
+                        onChange={handleChange}
                         required
                     />
                 </div>
-
                 <div className={styles.formGroup}>
-                    <label htmlFor="description">Opis parkingu:</label>
+                    <label htmlFor="address">Adres:</label>
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value={formData.address || ''}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className={styles.formGroup}>
+                    <label htmlFor="imageUrl">Link do zdjęcia:</label>
+                    <input
+                        type="url"
+                        id="imageUrl"
+                        name="imageUrl"
+                        value={formData.imageUrl || ''}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className={styles.formGroup}>
+                    <label htmlFor="description">Opis:</label>
                     <textarea
                         id="description"
                         name="description"
-                        value={formState.description}
-                        onChange={handleInputChange}
+                        value={formData.description || ''}
+                        onChange={handleChange}
                         rows={5}
-                        className={styles.textarea}
+                    ></textarea>
+                </div>
+                {/* Dodaj inne pola, które chcesz edytować, np. latitude, longitude, manager_id */}
+                {/* <div className={styles.formGroup}>
+                    <label htmlFor="latitude">Szerokość geograficzna:</label>
+                    <input
+                        type="number"
+                        id="latitude"
+                        name="latitude"
+                        value={formData.latitude ?? ''}
+                        onChange={handleChange}
+                        step="any"
                     />
                 </div>
-
                 <div className={styles.formGroup}>
-                    <label htmlFor="photos">Prześlij nowe zdjęcie:</label>
-                    <div className={styles.inputWrapper}>
-                        <input
-                            id="photos"
-                            type="file"
-                            name="photos"
-                            accept="image/*"
-                            onChange={handleInputChange}
-                            ref={fileInputRef}
-                        />
+                    <label htmlFor="longitude">Długość geograficzna:</label>
+                    <input
+                        type="number"
+                        id="longitude"
+                        name="longitude"
+                        value={formData.longitude ?? ''}
+                        onChange={handleChange}
+                        step="any"
+                    />
+                </div> */}
+
+                {/* Sekcja edycji grup miejsc */}
+                {formData.place_groups && formData.place_groups.length > 0 && (
+                    <div className={styles.placeGroupsSection}>
+                        <h2>Dostępne miejsca:</h2>
+                        {formData.place_groups.map((group, index) => (
+                            <div key={group.group_id || `${group.type}-${index}`} className={styles.placeGroupItem}>
+                                <label htmlFor={`quantity-${index}`}>{group.type} (ilość):</label>
+                                <input
+                                    type="number"
+                                    id={`quantity-${index}`}
+                                    value={group.quantity || 0}
+                                    onChange={(e) => handlePlaceGroupChange(index, 'quantity', e.target.value)}
+                                    min="0"
+                                    required
+                                />
+                                {/* Możesz dodać więcej pól do edycji dla PlaceGroup, np. type */}
+                            </div>
+                        ))}
                     </div>
-                    {formState.imageUrl && !file && ( // Pokaż istniejące zdjęcie, jeśli nie wybrano nowego
-                        <div className={styles.currentImagePreview}>
-                            <p>Aktualne zdjęcie:</p>
-                            <img src={formState.imageUrl} alt="Aktualne zdjęcie parkingu" />
-                        </div>
-                    )}
-                    {file && ( // Pokaż podgląd wybranego pliku
-                        <div className={styles.currentImagePreview}>
-                            <p>Wybrane nowe zdjęcie:</p>
-                            <img src={URL.createObjectURL(file)} alt="Nowe zdjęcie parkingu" />
-                        </div>
-                    )}
-                </div>
+                )}
 
-                <div className={styles.sectionTitle}>Ilość miejsc parkingowych</div>
-                <div className={styles.formGroup}>
-                    <label htmlFor="car">Samochód osobowy:</label>
-                    <input
-                        id="car"
-                        type="number"
-                        min="0"
-                        name="car"
-                        value={formState.car}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div className={styles.formGroup}>
-                    <label htmlFor="motorcycle">Motocykl:</label>
-                    <input
-                        id="motorcycle"
-                        type="number"
-                        min="0"
-                        name="motorcycle"
-                        value={formState.motorcycle}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div className={styles.formGroup}>
-                    <label htmlFor="bus">Autobus:</label>
-                    <input
-                        id="bus"
-                        type="number"
-                        min="0"
-                        name="bus"
-                        value={formState.bus}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
+                {saveError && <p className={styles.error}>{saveError}</p>}
+                {saveSuccess && <p className={styles.success}>Dane parkingu zostały pomyślnie zaktualizowane!</p>}
 
-                <div className={styles.buttons}>
-                    <button type="button" className={styles.clear} onClick={handleReset}>
-                        Wyczyść formularz
+                <div className={styles.actions}>
+                    <button type="submit" disabled={isSaving}>
+                        {isSaving ? 'Zapisywanie...' : 'Zapisz zmiany'}
                     </button>
-                    <button type="submit" className={styles.submit} disabled={isLoading}>
-                        {isLoading ? 'Zapisywanie...' : 'Zapisz zmiany'}
+                    <button type="button" onClick={() => navigate('/owner-parkings')} className={styles.cancelButton}>
+                        Anuluj
                     </button>
                 </div>
             </form>
@@ -339,4 +244,4 @@ const ParkingEditFormPage: React.FC = () => {
     );
 };
 
-export default ParkingEditFormPage;
+export default EditParkingPage;

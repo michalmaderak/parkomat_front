@@ -14,6 +14,7 @@ import CancelReservationPage from "../pages/CancelReservationPage/CancelReservat
 // --- NOWE IMPORTY ---
 import OwnerParkingsPage from "../pages/OwnerParkingsPage/OwnerParkingsPage";
 import ParkingFormPage from "../pages/ParkingFormPage/ParkingFormPage";
+import ParkingEditFormPage from "../pages/ParkingEditFormPage/ParkingEditFormPage";
 //import AddEditParkingPage from "../pages/AddEditParkingPage/AddEditParkingPage"; // Będziemy potrzebować komponentu do dodawania/edycji
 // import OwnerParkingDetailsPage from "../pages/OwnerParkingDetailsPage/OwnerParkingDetailsPage"; // Opcjonalnie, jeśli chcesz inną stronę szczegółów dla właściciela
 // --- KONIEC NOWYCH IMPORTÓW ---
@@ -38,6 +39,7 @@ const App: React.FC = () => {
           {/* Strona z listą parkingów dla zalogowanego właściciela */}
           <Route path="/owner/parkings" element={<OwnerParkingsPage />} />
           <Route path="/owner/parkingAdd" element={<ParkingFormPage />} />
+          <Route path="/owner/parkingEdit/:parkingId" element={<ParkingEditFormPage />} />
 
 
           {/* Strona do dodawania nowego parkingu */}

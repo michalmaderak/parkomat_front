@@ -134,7 +134,7 @@ const OwnerParkingsPage: React.FC = () => {
                                         )}
 
                                         <div className={styles.buttonContainer}>
-                                            <Link to={`/owner/parking/${parking.parking_id}/edit`} className={styles.actionButton}>
+                                            <Link to={`/owner/parkingEdit/${parking.parking_id}`} className={styles.actionButton}>
                                                 <button>Edytuj</button>
                                             </Link>
                                             <Link to={`/owner/parking/${parking.parking_id}/details`} className={styles.actionButton}>

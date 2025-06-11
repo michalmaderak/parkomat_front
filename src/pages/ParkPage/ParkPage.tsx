@@ -325,17 +325,13 @@ const ParkPage: React.FC = () => {
                                                         const placeTypeInfo = placeTypesMap[group.type];
 
                                                         return (
-                                                            <li key={group.group_id} className={styles.placeGroupItem}>
-                                                                <span className={styles.placeGroupType}>
-                                                                    {placeTypeInfo?.label || group.type}:
-                                                                </span>
-                                                                <span className={styles.placeGroupIcon}>
+                                                                <><span className={styles.placeGroupType}>
+                                                                {placeTypeInfo?.label || group.type}:
+                                                            </span><span className={styles.placeGroupIcon}>
                                                                     {availableSpots > 0 ? '🟢' : '🔴'}
-                                                                </span>
-                                                                <span className={styles.placeGroupQuantity}>
+                                                                </span><span className={styles.placeGroupQuantity}>
                                                                     (Dostępnych: {availableSpots})
-                                                                </span>
-                                                            </li>
+                                                                </span><br/></>
                                                         );
                                                     })}
                                                 </ul>
