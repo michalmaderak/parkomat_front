@@ -54,7 +54,7 @@ const ParkPage: React.FC = () => {
         setSelectedDate(date);
     };
 
-    useEffect(() => {
+useEffect(() => {
         let result = parkings;
 
         if (searchTerm) {
@@ -63,21 +63,32 @@ const ParkPage: React.FC = () => {
             );
         }
 
-        if (vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motocycle) {
-            result = result.filter(parking => {
-                const placeGroups = parking.place_groups || [];
-                const parkingReserved = reservedSpotsAllParkings[parking.parking_id] || {};
+        // Now, we'll also filter based on whether there are ANY spots available for the selected date
+        // considering the vehicle filters if they are active.
+        result = result.filter(parking => {
+            const placeGroups = parking.place_groups || [];
+            const parkingReserved = reservedSpotsAllParkings[parking.parking_id] || {};
 
+            // If no vehicle filters are active, we just check if there's *any* spot available for *any* type
+            if (!vehicleFilters.car && !vehicleFilters.bus && !vehicleFilters.motocycle) {
+                return placeGroups.some(g => {
+                    const totalCapacity = g.quantity || 0;
+                    const reservedCount = parkingReserved[g.type] || 0;
+                    return (totalCapacity - reservedCount) > 0;
+                });
+            } else {
+                // If vehicle filters ARE active, apply the same logic as before,
+                // but now this also acts as a date filter because reservedSpotsAllParkings depends on selectedDate
                 return (
-                    (vehicleFilters.car && placeGroups.some(g => g.type === 'samochód osobowy' && ((g.quantity || 0) - (parkingReserved.car || 0)) > 0)) ||
-                    (vehicleFilters.bus && placeGroups.some(g => g.type === 'autobus' && ((g.quantity || 0) - (parkingReserved.bus || 0)) > 0)) ||
-                    (vehicleFilters.motocycle && placeGroups.some(g => g.type === 'motocykl' && ((g.quantity || 0) - (parkingReserved.motocycle || 0)) > 0))
+                    (vehicleFilters.car && placeGroups.some(g => g.type === 'samochód osobowy' && ((g.quantity || 0) - (parkingReserved['samochód osobowy'] || 0)) > 0)) ||
+                    (vehicleFilters.bus && placeGroups.some(g => g.type === 'autobus' && ((g.quantity || 0) - (parkingReserved['autobus'] || 0)) > 0)) ||
+                    (vehicleFilters.motocycle && placeGroups.some(g => g.type === 'motocykl' && ((g.quantity || 0) - (parkingReserved['motocykl'] || 0)) > 0))
                 );
-            });
-        }
+            }
+        });
 
         setFilteredParkings(result);
-    }, [searchTerm, vehicleFilters, parkings, reservedSpotsAllParkings]);
+    }, [searchTerm, vehicleFilters, parkings, reservedSpotsAllParkings]); // Dodaj selectedDate jako zależność
 
     const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
         setVehicleFilters(prev => ({
