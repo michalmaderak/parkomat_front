@@ -1,5 +1,13 @@
 /* src/pages/OwnerParkingsPage/OwnerParkingsPage.module.scss */
 
+// Zmienne kolorów
+$primary-dark-green: #3A4F41; // Nowa zmienna dla ciemnej zieleni przycisków
+$primary-lighter-green: #344B3C; // Kolor używany w innych miejscach (np. nagłówki)
+$background-color: #f5f5f5;
+$border-color: #e0e0e0;
+$text-color: #333; // Ogólny kolor tekstu
+$error-color: #d32f2f; // Kolor dla błędów
+
 .ownerParkingsPageContainer {
     max-width: 1200px;
     margin: 0 auto;
@@ -9,7 +17,7 @@
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #333;
+    color: $text-color;
 }
 
 .grid {
@@ -27,7 +35,7 @@ h1 {
 }
 
 .error {
-    color: #d32f2f;
+    color: $error-color;
     background-color: #ffebee;
     border: 1px solid #ef9a9a;
     padding: 10px;
@@ -53,8 +61,8 @@ h1 {
     text-align: right; /* Wyrównujemy przycisk do prawej (w kontenerze flex) */
 
     .actionButton button {
-        background-color: #28a745; /* Pozostawiam zielony, ponieważ to przycisk dodawania parkingu,
-                                       który często jest wyróżniony. Jeśli chcesz zmienić na #3A4F41, daj znać! */
+        // ZMIANA TUTAJ: Kolor przycisku "Dodaj Parking" na ciemnozielony
+        background-color: $primary-dark-green; // Używamy zmiennej dla ciemnej zieleni
         padding: 10px 20px;
         border-radius: 8px;
         border: none;
@@ -65,7 +73,8 @@ h1 {
         white-space: nowrap; /* Zapobiega zawijaniu tekstu na przycisku */
 
         &:hover {
-            background-color: #218838; /* Odpowiednio ciemniejszy odcień dla hover */
+            // ZMIANA TUTAJ: Ciemniejszy odcień ciemnej zieleni na hover
+            background-color: $primary-dark-green, 10%; // Używamy funkcji Sass do przyciemniania
         }
     }
 }
@@ -75,7 +84,7 @@ h1 {
     h2 {
         margin-top: 0;
         margin-bottom: 20px;
-        color: #333;
+        color: $text-color;
     }
 }
 
@@ -84,6 +93,8 @@ h1 {
     padding: 0;
     display: grid;
     gap: 20px;
+    // Możesz tutaj dodać media queries dla `grid-template-columns`
+    // np. grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
 .parkingItem {
@@ -120,7 +131,7 @@ h1 {
         h3 {
             margin-top: 0;
             margin-bottom: 10px;
-            color: #3A4F41; /* Zmieniono kolor tytułu na ciemnozielony */
+            color: $primary-dark-green; // Zmieniono kolor tytułu na ciemnozielony
         }
 
         .parkingAddress {
@@ -132,7 +143,7 @@ h1 {
         h4 {
             margin-top: 15px;
             margin-bottom: 10px;
-            color: #333;
+            color: $text-color;
         }
 
         .placeGroupsList {
@@ -167,7 +178,7 @@ h1 {
                 text-decoration: none;
 
                 button {
-                    background-color: #3A4F41; /* Zmieniono kolor tła przycisków na ciemnozielony */
+                    background-color: $primary-dark-green; // Upewnij się, że ten kolor jest spójny z przyciskiem dodawania
                     color: white;
                     padding: 8px 15px;
                     border: none;
@@ -177,7 +188,8 @@ h1 {
                     transition: background-color 0.2s ease;
 
                     &:hover {
-                        background-color: #3A4F41, 10%;
+                        // Zmieniono: Poprawiona funkcja `darken` z Sassa
+                        background-color: $primary-dark-green, 10%;
                     }
                 }
             }
@@ -191,12 +203,12 @@ h1 {
     justify-content: center;
     min-height: 80vh; /* Zajmuje większą część ekranu, aby było centralnie */
     font-size: 1.5em; /* Trochę większy tekst */
-    color: #333;
+    color: $text-color;
 }
 
 .spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #3A4F41; /* Zmieniono kolor kółeczka spinnera */
+    border-top: 4px solid $primary-dark-green; /* Zmieniono kolor kółeczka spinnera */
     border-radius: 50%;
     width: 40px;
     height: 40px;
