@@ -15,3 +15,5 @@ export interface Parking {
 
   place_groups?: PlaceGroup[]; // <--- NOWE POLE
 }
+
+
