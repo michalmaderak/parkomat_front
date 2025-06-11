@@ -1,38 +1,66 @@
+/* src/components/DatePicker/DatePicker.scss */
+
+$primary-color: #344B3C;
+$text-color: #333;
+$border-color: #e0e0e0;
+
 .date-picker-container {
-  font-family: Arial, sans-serif;
-  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  padding: 20px 20px 20px 0; // Top, Right, Bottom: 20px; Left: 0px
+  // --- ZMIANA TUTAJ: USUNIĘTO CIEŃ ---
+  // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); // USUNIĘTO TĘ LINIĘ
+  // --- KONIEC ZMIANY ---
+  border-radius: 8px; // Możesz zachować border-radius, jeśli chcesz zaokrąglone rogi bez cienia
+  display: inline-block;
+  
+  margin-left: 0; 
+  margin-right: auto; 
+  // max-width: 400px; 
+  // width: 100%;
+
+  h1 {
+    color: $primary-color;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+  }
 }
 
 .date-inputs {
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 15px;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    gap: 20px;
+  }
 }
 
 .date-inputs div {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .date-inputs label {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   font-weight: bold;
+  color: $text-color;
+  font-size: 0.95em;
 }
 
-.date-inputs input,
+.date-inputs input[type="date"],
 .date-inputs select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+  padding: 10px 12px;
+  border-radius: 5px;
+  font-size: 1em;
+  color: $text-color;
+  cursor: pointer;
 
-.parking-info h1 {
-  color: #007bff;
-  text-align: center;
-  margin: 0;
-}
-
-.date-inputs input[type="date"] {
-  margin-top: 5px;
-  padding: 8px;
+  &:focus {
+    outline: none;
+    border-color: $primary-color, 10%;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+  }
 }

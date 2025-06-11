@@ -280,7 +280,6 @@ const ParkPage: React.FC = () => {
 
                     {/* Zmiana tutaj: Umieszczamy DatePicker bezpośrednio pod tytułem "Data" */}
                     <div className={styles.filterGroup}>
-                        <p className={styles.filterTitle}>Data:</p>
                         <DatePicker onDateSelect={handleDateSelect} />
                     </div>
                 </div>
