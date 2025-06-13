@@ -1,14 +1,10 @@
-/* src/components/ReservationSuccessModal/ReservationSuccessModal.module.scss */
-
-// Definicja zmiennych CSS (custom properties) z domyślnymi wartościami
-// Używamy tutaj --primary-dark-green dla spójności
 :root {
-  --primary-dark-green: #3A4F41; // Twój ciemnozielony kolor
-  --primary-dark-green-hover: darken(#3A4F41, 10%); // Ciemniejszy na hover
+  --primary-dark-green: #3A4F41;
+  --primary-dark-green-hover: darken(#3A4F41, 10%);
   --text-color: #333;
-  --success-icon-color: #28a745; // Kolor dla ikony sukcesu (jasnozielony)
-  --success-title-color: #28a745; // Kolor dla tytułu sukcesu (jasnozielony)
-  --email-color: #3A4F41; // Zachowujemy dla e-maila, chyba że chcesz zmienić
+  --success-icon-color: #28a745;
+  --success-title-color: #28a745;
+  --email-color: #3A4F41;
 }
 
 .modalOverlay {
@@ -25,12 +21,12 @@
 }
 
 .modalContent {
-  background: #f0f0f0; /* Jasnoszare tło */
+  background: #f0f0f0;
   padding: 30px 40px;
   border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Większy cień */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
   width: 90%;
-  max-width: 550px; /* Nieco szerszy */
+  max-width: 550px;
   position: relative;
   text-align: center;
   color: var(--text-color);
@@ -51,7 +47,7 @@
 
 .successIcon {
   margin-bottom: 25px;
-  color: var(--success-icon-color); // Użycie zmiennej dla koloru ikony
+  color: var(--success-icon-color);
   font-size: 4em;
   img {
     width: 100px;
@@ -61,7 +57,7 @@
 
 .successTitle {
   font-size: 2.2em;
-  color: var(--success-title-color); // Użycie zmiennej dla koloru tytułu
+  color: var(--success-title-color);
   margin-bottom: 15px;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
@@ -81,7 +77,7 @@
 
 .emailDisplay {
   font-weight: bold;
-  color: var(--email-color); // Zachowujemy kolor e-maila
+  color: var(--email-color);
 }
 
 .greeting {
@@ -96,23 +92,19 @@
   align-items: center;
   justify-content: center;
   padding: 12px 25px;
-  // --- ZMIANA TUTAJ: KOLOR PRZYCISKU ---
-  background-color: var(--primary-dark-green); // Używamy Twojego ciemnozielonego koloru
+  background-color: var(--primary-dark-green);
   color: white;
   border: none;
   border-radius: 30px;
   font-size: 1.1em;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 10px rgba(#3A4F41, 0.2); // Cień oparty na ciemnozielonym
-  // --- KONIEC ZMIANY ---
+  box-shadow: 0 4px 10px rgba(#3A4F41, 0.2);
 
   &:hover {
-    // --- ZMIANA TUTAJ: KOLOR HOVER I CIEŃ HOVER ---
-    background-color: var(--primary-dark-green-hover); // Ciemniejszy odcień zieleni
+    background-color: var(--primary-dark-green-hover);
     transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(#3A4F41, 0.3); // Cień oparty na ciemnozielonym
-    // --- KONIEC ZMIANY ---
+    box-shadow: 0 6px 15px rgba(#3A4F41, 0.3);
   }
 
   .returnArrow {

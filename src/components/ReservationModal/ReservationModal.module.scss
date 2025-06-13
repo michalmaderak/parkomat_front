@@ -1,14 +1,10 @@
-/* src/components/ReservationModal/ReservationModal.module.scss */
-
-// Definicja zmiennych CSS (custom properties) z domyślnymi wartościami
-// Używamy tutaj --primary-dark-green dla spójności
 :root {
-  --primary-dark-green: #3A4F41; // Twój ciemnozielony kolor
-  --primary-dark-green-hover: darken(#3A4F41, 10%); // Ciemniejszy na hover
+  --primary-dark-green: #3A4F41;
+  --primary-dark-green-hover: darken(#3A4F41, 10%); 
   --text-color: #333;
   --text-color-light: #555;
   --danger-color: #dc3545;
-  --success-color: #28a745; // Kolor dla sukcesu (zielony)
+  --success-color: #28a745;
   --border-color: #ccc;
   --disabled-color: #cccccc;
 }
@@ -55,7 +51,7 @@
 
 .modalContent h2 {
   margin-top: 0;
-  color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+  color: var(--primary-dark-green);
   margin-bottom: 20px;
 }
 
@@ -83,16 +79,16 @@
   border-radius: 5px;
   font-size: 1em;
   &:focus {
-    border-color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+    border-color: var(--primary-dark-green);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(#3A4F41, 0.25); // Zmieniono na cień oparty o ciemnozielony
+    box-shadow: 0 0 0 3px rgba(#3A4F41, 0.25);
   }
 }
 
 .confirmButton {
   width: 100%;
   padding: 12px 20px;
-  background-color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+  background-color: var(--primary-dark-green);
   color: white;
   border: none;
   border-radius: 5px;
@@ -102,7 +98,7 @@
   transition: background-color 0.3s ease, transform 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: var(--primary-dark-green-hover); // Zmieniono na ciemniejszy odcień zieleni
+    background-color: var(--primary-dark-green-hover);
     transform: translateY(-2px);
   }
 
@@ -115,7 +111,7 @@
 .messageText {
   margin-top: 20px;
   font-weight: bold;
-  color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+  color: var(--primary-dark-green);
 
   &.error {
     color: var(--danger-color);

@@ -1,8 +1,6 @@
-/* src/styles/global.scss */
 @use 'sass:color';
 @use './variables' as *;
 
-/* Reset CSS */
 * {
   margin: 0;
   padding: 0;
@@ -24,7 +22,6 @@ button {
   font-family: inherit;
 }
 
-/* Media Queries */
 @media (max-width: 768px) {
   .container {
     padding: 1rem;

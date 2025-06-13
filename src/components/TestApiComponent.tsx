@@ -1,4 +1,3 @@
-// src/components/TestApiComponent.tsx
 import React, { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient";
 

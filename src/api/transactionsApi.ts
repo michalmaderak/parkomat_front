@@ -1,4 +1,3 @@
-// src/api/transactionsApi.ts
 import axiosClient from "./axiosClient";
 
 export interface Transaction {
@@ -7,17 +6,16 @@ export interface Transaction {
   type: "INCOME" | "EXPENSE";
   notes?: string;
   tags?: string[]; 
-  // inne pola, np. date, category, groupId, cykliczność itp.
+
 }
 
 export const transactionsApi = {
   getAll: async () => {
     const response = await axiosClient.get("/transactions");
-    return response.data; // zakładamy, że zwraca listę Transaction
+    return response.data;
   },
   create: async (transaction: Transaction) => {
     const response = await axiosClient.post("/transactions", transaction);
     return response.data; // zwraca utworzoną transakcję z nadanym id
   },
-  // Możesz dodać getById, update, delete, etc.
 };

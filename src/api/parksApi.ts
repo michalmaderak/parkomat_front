@@ -1,24 +1,21 @@
-// src/api/parksApi.ts
 import axiosClient from "./axiosClient";
-import { Park } from "../types/parks"; // Upewnij się, że typ Park jest poprawnie zdefiniowany
+import { Park } from "../types/parks";
 
 export const parksApi = {
-  // Istniejąca metoda pobierania wszystkich parków
-  getAll: async (): Promise<Park[]> => { // Dodajmy typ zwracany dla jasności
-    const response = await axiosClient.get<Park[]>("/parks"); // Określ typ oczekiwanej odpowiedzi
+  getAll: async (): Promise<Park[]> => { 
+    const response = await axiosClient.get<Park[]>("/parks"); 
     return response.data;
   },
 
   // Istniejąca metoda tworzenia parku
   create: async (park: Omit<Park, 'id'>): Promise<Park> => { // Park bez 'id' przy tworzeniu, serwer nada ID
-    const response = await axiosClient.post<Park>("/parks", park); // Określ typ oczekiwanej odpowiedzi
+    const response = await axiosClient.post<Park>("/parks", park); 
     return response.data;
   },
 
   // NOWA METODA: Pobieranie parku po ID
   getById: async (parkId: string | number): Promise<Park> => { // parkId może być stringiem z URL lub number
-    // Endpoint zazwyczaj wygląda tak: /parks/123
-    const response = await axiosClient.get<Park>(`/parks/${parkId}`); // Określ typ oczekiwanej odpowiedzi
+    const response = await axiosClient.get<Park>(`/parks/${parkId}`);
     return response.data;
   },
 

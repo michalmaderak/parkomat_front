@@ -1,5 +1,3 @@
-// src/pages/ParkPage/ParkPage.tsx
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styles from './ParkPage.module.scss';
@@ -23,7 +21,7 @@ interface ParkingReservedSpots {
 const API_BASE_URL = 'http://localhost:8080/api';
 
 const placeTypesMap: Record<string, { label: string; icon: string }> = {
-    'samochód osobowy': { label: 'samochód osobowy', icon: '🚗' }, // Corrected keys to match backend strings
+    'samochód osobowy': { label: 'samochód osobowy', icon: '🚗' },
     'autobus': { label: 'autobus', icon: '🚌' },
     'motocykl': { label: 'motocykl', icon: '🏍️' },
 };
@@ -63,19 +61,14 @@ const ParkPage: React.FC = () => {
             );
         }
 
-        // Check if any vehicle filter is active
         const isAnyVehicleFilterActive = vehicleFilters.car || vehicleFilters.bus || vehicleFilters.motocycle;
 
         result = result.filter(parking => {
             const placeGroups = parking.place_groups || [];
             const parkingReserved = reservedSpotsAllParkings[parking.parking_id] || {};
-
-            // If NO vehicle filters are active, we don't filter by availability for this specific case.
-            // All parkings matching the search term will be shown.
             if (!isAnyVehicleFilterActive) {
-                return true; // Show all parkings (after search term filter) if no vehicle filters are active
+                return true;
             } else {
-                // If vehicle filters ARE active, then filter by availability for the selected types
                 return (
                     (vehicleFilters.car && placeGroups.some(g => g.type === 'samochód osobowy' && ((g.quantity || 0) - (parkingReserved['samochód osobowy'] || 0)) > 0)) ||
                     (vehicleFilters.bus && placeGroups.some(g => g.type === 'autobus' && ((g.quantity || 0) - (parkingReserved['autobus'] || 0)) > 0)) ||
@@ -85,7 +78,7 @@ const ParkPage: React.FC = () => {
         });
 
         setFilteredParkings(result);
-    }, [searchTerm, vehicleFilters, parkings, reservedSpotsAllParkings]); // Dodaj selectedDate jako zależność (jest już w reservedSpotsAllParkings)
+    }, [searchTerm, vehicleFilters, parkings, reservedSpotsAllParkings]);
 
     const handleVehicleFilterChange = (type: keyof typeof vehicleFilters) => {
         setVehicleFilters(prev => ({
@@ -151,7 +144,6 @@ const ParkPage: React.FC = () => {
 
     useEffect(() => {
         const fetchAllAvailableSpots = async () => {
-            // Only fetch spots if there are parkings to check and a date is selected
             if (parkings.length === 0 || !selectedDate) {
                 setReservedSpotsAllParkings({});
                 return;
@@ -164,7 +156,6 @@ const ParkPage: React.FC = () => {
 
             try {
                 const promises = parkings.map(async (parking) => {
-                    // Use parking.parking_id as it's directly from the backend DTO
                     if (parking.parking_id === undefined || parking.parking_id === null) {
                         console.warn(`Nieprawidłowy ID parkingu dla pobierania: ${parking.parking_id}`);
                         return;
@@ -211,11 +202,9 @@ const ParkPage: React.FC = () => {
             }
         };
 
-        // Fetch spots only if there are parkings to check and a date is selected
         if (parkings.length > 0 && selectedDate) {
             fetchAllAvailableSpots();
         } else if (parkings.length === 0) {
-            // If there are no parkings, clear reserved spots to avoid showing stale data
             setReservedSpotsAllParkings({});
         }
     }, [parkings, selectedDate]);
@@ -289,8 +278,6 @@ const ParkPage: React.FC = () => {
                             Motocykl
                         </label>
                     </div>
-
-                    {/* Zmiana tutaj: Umieszczamy DatePicker bezpośrednio pod tytułem "Data" */}
                     <div className={styles.filterGroup}>
                         <DatePicker onDateSelect={handleDateSelect} />
                     </div>
@@ -333,11 +320,10 @@ const ParkPage: React.FC = () => {
                                                         const totalCapacity = group.quantity || 0;
                                                         const reservedCount = parkingReservedSpots[group.type] || 0;
                                                         const availableSpots = totalCapacity - reservedCount;
-                                                        // Corrected map keys here as well
                                                         const placeTypeInfo = placeTypesMap[group.type as keyof typeof placeTypesMap];
 
                                                         return (
-                                                            <li key={group.group_id}> {/* Add a key for list items */}
+                                                            <li key={group.group_id}>
                                                                 <span className={styles.placeGroupType}>
                                                                     {placeTypeInfo?.label || group.type}:
                                                                 </span>

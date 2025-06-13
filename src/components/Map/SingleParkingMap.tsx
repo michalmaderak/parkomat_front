@@ -1,36 +1,32 @@
-// src/components/Map/SingleParkingMap.tsx
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
-import "leaflet/dist/leaflet.css"; // Importuj style Leaflet
+import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// Importuj ikony markerów (aby uniknąć problemów z domyślną ikoną)
 import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
-import markerIcon2xUrl from "leaflet/dist/images/marker-icon-2x.png"; // Opcjonalnie dla HiDPI
+import markerIcon2xUrl from "leaflet/dist/images/marker-icon-2x.png";
 
-// Skonfiguruj domyślną ikonę Leaflet
+
 const defaultIcon = new L.Icon({
   iconUrl: markerIconUrl,
-  iconRetinaUrl: markerIcon2xUrl, // Dla ekranów HiDPI
+  iconRetinaUrl: markerIcon2xUrl,
   shadowUrl: markerShadowUrl,
-  iconSize: [25, 41],    // Rozmiar ikony
-  iconAnchor: [12, 41],   // Punkt ikony odpowiadający lokalizacji markera
-  popupAnchor: [1, -34],  // Punkt, od którego powinien otwierać się popup względem iconAnchor
-  shadowSize: [41, 41]    // Rozmiar cienia
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41] 
 });
 
 // Typy dla propsów komponentu
 interface SingleParkingMapProps {
-  latitude: number | null; // Zmiana - pozwól na null
-  longitude: number | null; // Zmiana - pozwól na null
-  // ... reszta propsów
-  popupText?: string;        // Opcjonalny tekst dla dymka (Popup)
-  zoom?: number;             // Opcjonalny poziom zoomu, domyślnie np. 15
-  mapHeight?: string;        // Opcjonalna wysokość mapy (np. "400px")
-  mapWidth?: string;         // Opcjonalna szerokość mapy (np. "100%")
-  // Dodatkowe opcje Leaflet, które możesz chcieć kontrolować
+  latitude: number | null;
+  longitude: number | null;
+  popupText?: string;      
+  zoom?: number;     
+  mapHeight?: string;  
+  mapWidth?: string;     
   dragging?: boolean;
   zoomControl?: boolean;
   scrollWheelZoom?: boolean;
@@ -53,7 +49,6 @@ const SingleParkingMap: React.FC<SingleParkingMapProps> = ({
     </div>;
   }
   // Klucz dla MapContainer, aby wymusić re-render, jeśli współrzędne się zmienią
-  // (choć dla tego komponentu, który przyjmuje lat/lng, zmiana propsów powinna wystarczyć)
   const mapKey = `${latitude}-${longitude}`;
   const centerPosition: [number, number] = [latitude, longitude];
 
@@ -65,10 +60,10 @@ const SingleParkingMap: React.FC<SingleParkingMapProps> = ({
 
   return (
     <MapContainer
-      key={mapKey} // Klucz może pomóc w niektórych przypadkach aktualizacji
+      key={mapKey}
       center={centerPosition}
       zoom={zoom}
-      style={{ height: mapHeight, width: mapWidth, borderRadius: "8px", overflow: "hidden" }} // Dodaj border-radius i overflow
+      style={{ height: mapHeight, width: mapWidth, borderRadius: "8px", overflow: "hidden" }}
       dragging={dragging}
       zoomControl={zoomControl}
       scrollWheelZoom={scrollWheelZoom}

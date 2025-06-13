@@ -1,27 +1,22 @@
-// src/api/reservationAPI.ts
-
-import axiosClient from "./axiosClient"; // Użyj tego samego axiosClient
+import axiosClient from "./axiosClient";
 
 // Definicja interfejsu dla PlaceGroupsRequestDto
-// Upewnij się, że ścieżka do tego typu jest poprawna, jeśli istnieje w innym miejscu
 export interface PlaceGroupsRequestDto {
-    type: string; // np. 'car', 'bus', 'motorcycle'
+    type: string;
     quantity: number;
 }
 
-// Definicja interfejsu dla ReservationDto, zgodna z Twoim backendem
 export interface ReservationDto {
-    reservationStartDate: string; // Data w formacie ISO (np. "2023-10-27T10:00:00.000Z")
-    reservationEndDate: string;   // lub Date, ale zazwyczaj backend preferuje string
+    reservationStartDate: string;
+    reservationEndDate: string; 
     reserveEmail: string;
-    parkingId: number; // Zmieniono na number, zgodnie z Twoim backendem (Long w Javie)
+    parkingId: number;
     reservations: PlaceGroupsRequestDto[];
     totalPrice: number;
 }
 
 // Definicja interfejsu dla odpowiedzi z backendu (np. Reservation model)
-// Upewnij się, że masz odpowiedni typ Reservation w Twoich typach
-import { Reservation } from '../types/reservation'; // Załóżmy, że masz ten typ
+import { Reservation } from '../types/reservation';
 
 export const reservationAPI = {
     /**

@@ -1,4 +1,3 @@
-// src/pages/RegisterPage/RegisterPage.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../../api/authApi";

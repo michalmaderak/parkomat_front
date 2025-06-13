@@ -1,4 +1,3 @@
-// src/components/ReservationModal/ReservationModal.tsx
 import React, { useState } from 'react';
 import styles from './ReservationModal.module.scss';
 
@@ -7,7 +6,7 @@ interface ReservationModalProps {
   onClose: () => void;
   onConfirmReservation: (email: string) => void;
   totalSelectedVehicles: number;
-  totalPrice: number; // NOWY PROP: Całkowita cena rezerwacji
+  totalPrice: number;
   reservationMessage: string;
   parkingName: string;
   selectedDate: Date | null;
@@ -18,7 +17,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
   onClose,
   onConfirmReservation,
   totalSelectedVehicles,
-  totalPrice, // Użyj nowego propa
+  totalPrice,
   reservationMessage,
   parkingName,
   selectedDate,

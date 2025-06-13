@@ -1,8 +1,7 @@
-// src/types/placeGroup.ts (NOWY PLIK)
 export interface PlaceGroup {
-  group_id: number; // lub string
+  group_id: number;
   quantity: number;
   type: string;
-  parking_id: number; // Add this line
+  parking_id: number;
   price: number;
 }

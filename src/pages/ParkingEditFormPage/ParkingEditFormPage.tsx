@@ -1,24 +1,19 @@
-// src/pages/EditParkingPage/EditParkingPage.tsx
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { parkingsApi } from '../../api/parkingsApi';
-import { Parking } from '../../types/parkings'; // Importuj tylko Parking
-import { PlaceGroup } from '../../types/placeGroup'; // Upewnij się, że Parking i PlaceGroup są importowane
+import { Parking } from '../../types/parkings'; 
+import { PlaceGroup } from '../../types/placeGroup';
 import styles from './ParkingEditFormPage.module.scss';
 
 const EditParkingPage: React.FC = () => {
-    const { parkingId: paramParkingId } = useParams<{ parkingId: string }>(); // Zmieniamy nazwę, żeby uniknąć kolizji
+    const { parkingId: paramParkingId } = useParams<{ parkingId: string }>();
     const navigate = useNavigate();
 
-    // Upewniamy się, że parkingId jest liczbą
     const parsedParkingId = paramParkingId ? parseInt(paramParkingId, 10) : null;
 
     const [parking, setParking] = useState<Parking | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
-    // formData może być Parking (jeśli zawsze chcemy wysyłać pełen obiekt)
-    // lub Partial<Parking> jeśli tylko zmienione pola
     const [formData, setFormData] = useState<Partial<Parking>>({});
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<string>('');
@@ -32,7 +27,6 @@ const EditParkingPage: React.FC = () => {
                 return;
             }
             try {
-                // Używamy parsedParkingId jako liczby
                 const fetchedParking = await parkingsApi.getById(parsedParkingId);
                 setParking(fetchedParking);
                 setFormData({
@@ -40,7 +34,6 @@ const EditParkingPage: React.FC = () => {
                     address: fetchedParking.address,
                     imageUrl: fetchedParking.imageUrl,
                     description: fetchedParking.description,
-                    // Pamiętaj, aby skopiować place_groups głęboko, jeśli chcesz je modyfikować
                     place_groups: fetchedParking.place_groups ? fetchedParking.place_groups.map(pg => ({ ...pg })) : []
                 });
             } catch (err: unknown) {
@@ -52,7 +45,7 @@ const EditParkingPage: React.FC = () => {
         };
 
         fetchParkingData();
-    }, [parsedParkingId]); // Zależność od parsedParkingId
+    }, [parsedParkingId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -94,14 +87,12 @@ const EditParkingPage: React.FC = () => {
         setSaveSuccess(false);
 
         try {
-            // Składamy pełny obiekt Parking do wysłania
             const dataToUpdate: Parking = {
-                ...parking!, // Bierzemy aktualny obiekt parkingu (już wiemy, że nie jest null)
-                ...formData, // Nadpisujemy zmienione pola z formularza
-                parking_id: parsedParkingId // Upewnij się, że ID jest poprawne i typu number
+                ...parking!,
+                ...formData, 
+                parking_id: parsedParkingId
             };
 
-            // Wywołujemy parkingsApi.update z parsedParkingId (number) i pełnym obiektem Parking
             const updatedParking = await parkingsApi.update(parsedParkingId, dataToUpdate);
             setParking(updatedParking);
             setSaveSuccess(true);
@@ -183,31 +174,7 @@ const EditParkingPage: React.FC = () => {
                         rows={5}
                     ></textarea>
                 </div>
-                {/* Dodaj inne pola, które chcesz edytować, np. latitude, longitude, manager_id */}
-                {/* <div className={styles.formGroup}>
-                    <label htmlFor="latitude">Szerokość geograficzna:</label>
-                    <input
-                        type="number"
-                        id="latitude"
-                        name="latitude"
-                        value={formData.latitude ?? ''}
-                        onChange={handleChange}
-                        step="any"
-                    />
-                </div>
-                <div className={styles.formGroup}>
-                    <label htmlFor="longitude">Długość geograficzna:</label>
-                    <input
-                        type="number"
-                        id="longitude"
-                        name="longitude"
-                        value={formData.longitude ?? ''}
-                        onChange={handleChange}
-                        step="any"
-                    />
-                </div> */}
 
-                {/* Sekcja edycji grup miejsc */}
                 {formData.place_groups && formData.place_groups.length > 0 && (
                     <div className={styles.placeGroupsSection}>
                         <h2>Dostępne miejsca:</h2>
@@ -222,7 +189,6 @@ const EditParkingPage: React.FC = () => {
                                     min="0"
                                     required
                                 />
-                                {/* Możesz dodać więcej pól do edycji dla PlaceGroup, np. type */}
                             </div>
                         ))}
                     </div>

@@ -1,7 +1,5 @@
-// src/pages/HomePage/HomePage.module.scss
-
 .homePageContainer {
-    padding: 20px; // Przykładowy padding
+    padding: 20px;
 }
 
 .pageTitle {
@@ -11,17 +9,17 @@
 
 .contentWrapper {
     display: flex;
-    flex-direction: row; // Domyślnie, ale dla jasności
-    gap: 20px; // Odstęp między kolumnami
-    align-items: flex-start; // Wyrównaj elementy do góry
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
 }
 
 .parkListContainer {
     margin-left: 200px;
-    flex: 1; // Zajmuje dostępną przestrzeń (np. 1/3)
-    max-height: 100vh; // Ogranicz wysokość listy i dodaj scroll
-    overflow-y: auto; // Pokaż pasek przewijania, gdy lista jest za długa
-    padding-right: 10px; // Mały odstęp od paska przewijania
+    flex: 1;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-right: 10px;
     padding: 15px;
     border-radius: 5px;
 
@@ -33,17 +31,11 @@
 }
 
 .mapContainer {
-    flex: 2; // Zajmuje więcej dostępnej przestrzeni (np. 2/3)
-    min-height: 500px; // Minimalna wysokość dla mapy
+    flex: 2;
+    min-height: 500px;
     border-radius: 5px;
-    overflow: hidden; // Ukryj ewentualne wystające elementy mapy
-    position: relative; // Ważne dla niektórych bibliotek map
-
-    // Zmieniono p { ... } na .loadingContainer dla spójności
-    // p { // Style dla komunikatów w kontenerze mapy
-    //   padding: 20px;
-    //   text-align: center;
-    // }
+    overflow: hidden;
+    position: relative;
 }
 
 // --- Dodane style dla ładowania ---
@@ -52,12 +44,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 200px; /* Dopasuj wysokość w zależności od kontenera */
+    min-height: 200px;
     font-size: 1.5em;
     color: #333;
-    width: 100%; // Ważne dla centrowania w flexboxie rodzica
-    height: 100%; // Ważne dla centrowania w flexboxie rodzica
-    text-align: center; // Wyrównanie tekstu wewnątrz loadingText
+    width: 100%;
+    height: 100%;
+    text-align: center;
 }
 
 .spinner {
@@ -67,11 +59,11 @@
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite; /* Animacja obracania */
-    margin-bottom: 15px; /* Odstęp między kółkiem a tekstem */
+    margin-bottom: 15px;
 }
 
 .loadingText {
-    font-size: 1.2em; /* Rozmiar tekstu "Ładowanie danych..." */
+    font-size: 1.2em;
     color: #555;
 }
 
@@ -79,7 +71,6 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-// --- Koniec dodanych stylów dla ładowania ---
 
 .parkList {
     list-style: none;
@@ -94,7 +85,7 @@
 }
 
 .parkCard {
-    background-color: #2d4236; /* ciemna zieleń */
+    background-color: #2d4236;
     color: white;
     display: flex;
     justify-content: space-between;
@@ -106,7 +97,7 @@
     text-decoration: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     &:hover {
-        background-color: #1c2c23; // Efekt najechania
+        background-color: #1c2c23;
     }
 }
 
@@ -141,7 +132,7 @@
     }
 }
 
-.parkListLogo { // Styl dla ewentualnego logo w liście
+.parkListLogo {
     max-height: 20px;
     margin-right: 8px;
     vertical-align: middle;
@@ -151,14 +142,14 @@
     font-weight: bold;
 }
 
-.parkListAddress { // Styl dla ewentualnego adresu
+.parkListAddress { 
     display: block;
     font-size: 0.9em;
     color: #555;
     margin-top: 4px;
 }
 
-.error { // Ogólny styl dla błędów
+.error {
     color: red;
     font-weight: bold;
     padding: 10px;

@@ -1,4 +1,3 @@
-// src/pages/HomePage/HomePage.tsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./HomePage.module.scss";
@@ -54,7 +53,6 @@ const HomePage: React.FC = () => {
         <div className={styles.parkListContainer}>
           <h2>Wybierz Park Narodowy</h2>
           {isLoading ? (
-            // Zmieniony kod dla ładowania listy parków
             <div className={styles.loadingContainer}>
               <div className={styles.spinner}></div>
               <p className={styles.loadingText}>Ładowanie listy parków...</p>
@@ -86,7 +84,6 @@ const HomePage: React.FC = () => {
 
         <div className={styles.mapContainer}>
           {isLoading ? (
-            // Zmieniony kod dla ładowania mapy
             <div className={styles.loadingContainer}>
               <div className={styles.spinner}></div>
               <p className={styles.loadingText}>Ładowanie mapy...</p>

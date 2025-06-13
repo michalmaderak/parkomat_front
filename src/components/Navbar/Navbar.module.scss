@@ -1,27 +1,24 @@
-// src/components/Navbar/Navbar.module.scss
-@use "../../styles/variables" as *; // Upewnij się, że ścieżka jest poprawna
+@use "../../styles/variables" as *;
 @use "sass:color";
 
 .navbar {
   display: flex;
-  justify-content: space-between; // Rozsuwa grupę logo i linki autoryzacji na boki
-  align-items: center; // Wyrównuje je pionowo do środka
-  // Użyj paddingu, aby uzyskać odstęp od krawędzi przeglądarki
-  padding: 0.5rem 220px; // Zachowano duży padding poziomy zgodnie z oryginałem
-                        // Zmniejszono padding pionowy dla lepszego dopasowania do wysokości
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 220px;
   background-color: $primary-color;
   color: white;
-  height: 100px; // Zachowano wysokość
-  box-sizing: border-box; // Aby padding wliczał się w wysokość
+  height: 100px;
+  box-sizing: border-box;
 }
 
 // --- Lewa Strona: Grupa Logo ---
 .logoGroup {
-  display: flex; // Układa obrazek i kontener tekstu obok siebie
-  align-items: center; // Wyrównuje je pionowo
-  gap: 15px; // Odstęp między obrazkiem a tekstem
-  text-decoration: none; // Usuwa podkreślenie z linku
-  color: white; // Ustawia domyślny kolor tekstu linku
+  display: flex;
+  align-items: center; 
+  gap: 15px;
+  text-decoration: none; 
+  color: white;
 }
 .separator {
   width: 1px;
@@ -31,66 +28,64 @@
   margin: 0 1rem;
 }
 .logoImage {
-  height: 75px; // Dostosuj rozmiar logo wg potrzeb
-  width: auto; // Zachowaj proporcje
-  display: block; // Uniknięcie potencjalnych problemów z marginesem pod obrazkiem
+  height: 75px;
+  width: auto;
+  display: block; 
 }
 
 .logoTextContainer {
   display: flex;
-  flex-direction: column; // Tytuł nad podtytułem
+  flex-direction: column;
 }
 
 .logoTitle {
-  font-size: 28px; // Dostosuj
+  font-size: 28px;
   font-weight: bold;
-  margin: 0; // Usuń domyślne marginesy
-  line-height: 1.1; // Zmniejsz interlinię
+  margin: 0;
+  line-height: 1.1;
   color:white;
 }
 
 .logoSubtitle {
-  font-size: 16px; // Dostosuj
-  font-weight: 300; // Cieńsza czcionka
-  margin: 0; // Usuń domyślne marginesy
+  font-size: 16px;
+  font-weight: 300;
+  margin: 0;
   font-style: italic;
   line-height: 1.1;
 }
 
 // --- Prawa Strona: Linki Autoryzacji ---
 .authLinks {
-  display: flex; // Układa elementy (Logowanie, Rejestracja itp.) obok siebie
-  align-items: center; // Wyrównuje je pionowo
-  gap: 35px; // Odstęp między poszczególnymi elementami (np. Logowanie a Rejestracja)
+  display: flex;
+  align-items: center; 
+  gap: 35px;
 }
 
 .authItem {
   display: flex;
-  flex-direction: column; // Układa ikonę NAD tekstem
-  align-items: center; // Wyśrodkowuje ikonę i tekst w poziomie
-  gap: 6px; // Odstęp między ikoną a tekstem pod nią
+  flex-direction: column; 
+  align-items: center;
+  gap: 6px;
   color: white;
   text-decoration: none;
-  font-weight: 500; // Średnia grubość
-  transition: opacity 0.2s ease-in-out; // Efekt dla najechania
-  cursor: pointer; // Wskazuje interaktywność
+  font-weight: 500;
+  transition: opacity 0.2s ease-in-out;
+  cursor: pointer;
 
   &:hover {
-    opacity: 0.8; // Lekkie przygaszenie przy najechaniu
-    // Alternatywnie zmiana koloru:
-    // color: color.scale($primary-color, $lightness: 40%);
+    opacity: 0.8;
   }
 }
 
 .authIcon {
-  height: 32px; // Rozmiar ikon
+  height: 32px;
   width: 32px;
 }
 
 .authText {
-  font-size: 0.8rem; // Mniejszy rozmiar tekstu pod ikoną
-  text-align: center; // Wyśrodkowanie tekstu (choć flex align-items już to robi)
-  line-height: 1; // Zmniejsz interlinię tekstu
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1;
 }
 
 // Resetowanie stylów dla przycisku wylogowania, aby wyglądał jak link
@@ -99,7 +94,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  font: inherit; // Dziedzicz czcionkę
-  color: inherit; // Dziedzicz kolor
+  font: inherit;
+  color: inherit;
   cursor: pointer;
 }

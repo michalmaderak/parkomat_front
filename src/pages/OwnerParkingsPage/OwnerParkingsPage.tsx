@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './OwnerParkingsPage.module.scss'; // Stwórz nowy plik SCSS
+import styles from './OwnerParkingsPage.module.scss';
 import { Parking } from '../../types/parkings';
 import { PlaceGroup } from '../../types/placeGroup';
-import { parkingsApi } from '../../api/parkingsApi'; // Upewnij się, że masz tę ścieżkę do API
-import { useAuth } from '../../context/AuthContext'; // Załóżmy, że masz kontekst uwierzytelniania do pobierania ID właściciela
+import { parkingsApi } from '../../api/parkingsApi'; 
+import { useAuth } from '../../context/AuthContext';
 
 const OwnerParkingsPage: React.FC = () => {
-    const { userId } = useAuth(); // Przykład pobierania ID właściciela z kontekstu
+    const { userId } = useAuth(); 
     const [parkings, setParkings] = useState<Parking[]>([]);
     const [filteredParkings, setFilteredParkings] = useState<Parking[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -26,7 +26,7 @@ const OwnerParkingsPage: React.FC = () => {
             setIsLoading(true);
             setError('');
             try {
-                // Załóżmy, że parkingsApi ma metodę getParkingsByuserId
+
                 const parkingsData = await parkingsApi.getParkingsByManagerId(userId);
                 setParkings(parkingsData);
                 setFilteredParkings(parkingsData); // Początkowo wyświetl wszystkie

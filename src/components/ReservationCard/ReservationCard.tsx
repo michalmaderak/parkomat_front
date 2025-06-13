@@ -1,4 +1,3 @@
-// src/components/ReservationCard/ReservationCard.tsx
 import React from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Trash2, Minus } from 'lucide-react';
@@ -21,7 +20,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
   onDecreaseVehicle,
   totalSelectedVehicles,
   totalSelectedSpotPrices,
-  onOpenReservationModal, // Używamy nowego propa
+  onOpenReservationModal,
   parkingPlaceGroups,
 }) => {
   const isReservationPossible = totalSelectedVehicles > 0; // Warunek, kiedy przycisk powinien być aktywny
@@ -70,10 +69,9 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
             do zapłaty: <span>{totalSelectedSpotPrices}</span>  złotych
             </div></>
         )}
-        {/* Nowy przycisk "Przejdź do rezerwacji" */}
         <button
           className={styles.goToReservationButton}
-          onClick={onOpenReservationModal} // Wywołujemy prop, który otworzy modal
+          onClick={onOpenReservationModal}
           disabled={!isReservationPossible} // Aktywny tylko, gdy wybrano pojazdy
         >
           Przejdź do rezerwacji

@@ -21,9 +21,9 @@ $border-color: #e0e0e0;
   border-radius: 5px;
   text-align: center;
   margin-bottom: 20px;
-  width: 80%; /* Ustawia szerokość nagłówka na 80% szerokości rodzica (.container) */      /* Możesz użyć innej wartości procentowej lub stałej, np. 600px */
-  max-width: 400px; /* Opcjonalnie: maksymalna szerokość, aby nie był zbyt szeroki na dużych ekranach */
-  margin-left: auto;  /* Automatyczny lewy margines */
+  width: 80%;
+  max-width: 400px;
+  margin-left: auto; 
   margin-right: auto; 
 }
 

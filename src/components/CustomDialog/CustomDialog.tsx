@@ -1,4 +1,3 @@
-// src/components/CustomDialog/CustomDialog.tsx
 import React from 'react';
 import styles from './CustomDialog.module.scss';
 

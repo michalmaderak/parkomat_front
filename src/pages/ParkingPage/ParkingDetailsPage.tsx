@@ -1,5 +1,3 @@
-// src/pages/ParkingDetailsPage/ParkingDetailsPage.tsx
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './ParkingDetailsPage.module.scss';
@@ -21,7 +19,6 @@ import { reservationAPI, ReservationDto, PlaceGroupsRequestDto } from '../../api
 import { format } from 'date-fns';
 import axios from 'axios';
 
-// NOWY TYP: Odpowiedź z endpointu daily-vehicle-counts
 interface FreeSpotsDto {
     reservationCount: number;
     type: string;
@@ -33,7 +30,6 @@ const placeTypesMap: Record<string, { label: string; icon: string }> = {
     motocycle: { label: 'motocykl', icon: '🏍️' },
 };
 
-// Adres bazowy Twojego backendu
 const API_BASE_URL = 'http://localhost:8080/api';
 
 const ParkingDetailsPage: React.FC = () => {
@@ -151,16 +147,14 @@ const ParkingDetailsPage: React.FC = () => {
     // Efekt do przeliczania całkowitej ceny
     useEffect(() => {
         let currentTotalPrice = 0;
-        // Zastosuj optional chaining i nullish coalescing dla bezpieczeństwa
-        parking?.place_groups?.forEach(group => { // Access place_groups only if parking is not null/undefined
+        parking?.place_groups?.forEach(group => {
             const quantity = selectedVehicles[group.type] || 0;
-            // Sprawdź, czy group.price jest liczbą przed użyciem
             if (typeof group.price === 'number') {
                 currentTotalPrice += quantity * group.price;
             }
         });
         setTotalPrice(parseFloat(currentTotalPrice.toFixed(2)));
-    }, [selectedVehicles, parking]); // Zależności: przeliczaj, gdy zmienią się wybrane pojazdy lub dane parkingu
+    }, [selectedVehicles, parking]);
 
 
     const addVehicleSelection = (typeId: string) => {
@@ -192,7 +186,7 @@ const ParkingDetailsPage: React.FC = () => {
 
     const handleDateChange = (date: Date) => {
         setSelectedDate(date);
-        setSelectedVehicles({}); // Resetuj wybrane pojazdy przy zmianie daty
+        setSelectedVehicles({});
     };
 
     const handleOpenReservationModal = () => {
@@ -215,7 +209,7 @@ const ParkingDetailsPage: React.FC = () => {
         setSelectedDate(null);
         setReserveEmail('');
         setReservationMessage('');
-        // Po zamknięciu modala sukcesu, odśwież dane o wolnych miejscach
+
         if (parkingId && selectedDate) {
             const fetchAvailableSpotsAfterReservation = async () => {
                 if (!parkingId || !selectedDate) return;
@@ -395,8 +389,6 @@ const ParkingDetailsPage: React.FC = () => {
                             <p>{parking.description}</p>
                         </div>
                     )}
-
-                    {/* Check if parking.place_groups exists before trying to access its length */}
                     {parking.place_groups && parking.place_groups.length > 0 ? (
                         <div className={styles.placeGroupsSection}>
                             <h4>Dostępne typy miejsc:</h4>
@@ -404,7 +396,6 @@ const ParkingDetailsPage: React.FC = () => {
                             {spotsError && <p className={styles.error}>{spotsError}</p>}
                             {!isLoadingSpots && !spotsError && (
                                 <ul>
-                                    {/* Use optional chaining here as well for safety */}
                                     {parking.place_groups?.map((group: PlaceGroup) => {
                                         const placeTypeInfo = placeTypesMap[group.type];
                                         const totalCapacity = group.quantity || 0;
@@ -485,7 +476,6 @@ const ParkingDetailsPage: React.FC = () => {
                         <div className={styles.datePickerSection}>
                             <DatePicker
                                 onDateSelect={handleDateChange}
-                                //selectedDate={selectedDate}
                             />
                         </div>
 
@@ -496,7 +486,6 @@ const ParkingDetailsPage: React.FC = () => {
                             totalSelectedVehicles={totalSelectedVehicles}
                             totalSelectedSpotPrices={totalPrice}
                             onOpenReservationModal={handleOpenReservationModal}
-                            // Pass parking.place_groups as an empty array if undefined
                             parkingPlaceGroups={parking.place_groups || []}
                         />
 

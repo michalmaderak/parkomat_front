@@ -1,31 +1,28 @@
-// src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  // Dodano userId/ownerId, który będzie przechowywał ID zalogowanego użytkownika/właściciela
   userId: string | null;
-  login: (token: string, userId: string) => void; // Zmieniono sygnaturę funkcji login
+  login: (token: string, userId: string) => void;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined); // Zmieniono domyślną wartość na undefined
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userId, setUserId] = useState<string | null>(null); // Dodano stan dla userId
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    const storedUserId = localStorage.getItem("userId"); // Próbujemy pobrać userId z localStorage
+    const storedUserId = localStorage.getItem("userId");
 
     if (token && storedUserId) {
       setIsAuthenticated(true);
       setUserId(storedUserId);
     } else {
-      // Jeśli token lub userId brakuje, upewniamy się, że stan jest czysty
       setIsAuthenticated(false);
       setUserId(null);
       localStorage.removeItem("accessToken");
@@ -33,17 +30,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
-  // Zaktualizowana funkcja login, która przyjmuje token i userId
+  //funkcja login, która przyjmuje token i userId
   const login = (token: string, newUserId: string) => {
     localStorage.setItem("accessToken", token);
-    localStorage.setItem("userId", newUserId); // Zapisz userId w localStorage
+    localStorage.setItem("userId", newUserId);
     setIsAuthenticated(true);
     setUserId(newUserId);
   };
 
   const logout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("userId"); // Usuń userId przy wylogowaniu
+    localStorage.removeItem("userId");
     setIsAuthenticated(false);
     setUserId(null);
   };
@@ -58,7 +55,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    // Wyrzuć błąd, jeśli useAuth jest użyte poza AuthProvider
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

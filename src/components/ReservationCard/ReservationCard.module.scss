@@ -1,15 +1,12 @@
-/* src/components/ReservationCard/ReservationCard.module.scss */
 
-// Definicja zmiennych CSS (custom properties) z domyślnymi wartościami
-// Używamy tutaj --primary-dark-green dla spójności
 :root {
-  --primary-dark-green: #3A4F41; // Twój ciemnozielony kolor
-  --primary-dark-green-hover: darken(#3A4F41, 10%); // Ciemniejszy na hover
+  --primary-dark-green: #3A4F41;
+  --primary-dark-green-hover: darken(#3A4F41, 10%); 
   --card-bg-color: #ffffff;
   --text-color: #333;
   --text-color-light: #555;
   --danger-color: #dc3545;
-  --hover-bg-color: #f8d7da; // Zachowujemy dla przycisku usuwania, chyba że chcesz zmienić
+  --hover-bg-color: #f8d7da;
   --border-color: #eee;
   --disabled-color: #cccccc;
 }
@@ -17,7 +14,7 @@
 .reservationCard {
   width: 100%;
   max-width: 350px;
-  margin-left: 20px; /* Albo inne pozycjonowanie */
+  margin-left: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   background-color: var(--card-bg-color);
@@ -33,7 +30,7 @@
   font-weight: bold;
   margin-bottom: 15px;
   text-align: center;
-  color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+  color: var(--primary-dark-green);
 }
 
 .reservationList {
@@ -71,7 +68,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--danger-color); // Kolor czerwony dla przycisku usuwania
+  color: var(--danger-color);
   padding: 5px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
@@ -81,7 +78,6 @@
   }
   &:focus {
     outline: none;
-    // Zmieniono kolor cienia focusa na oparty o ciemnozielony
     box-shadow: 0 0 0 2px rgba(#3A4F41, 0.25); 
   }
 }
@@ -94,7 +90,7 @@
   font-weight: bold;
   margin-top: 10px;
   text-align: right;
-  color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+  color: var(--primary-dark-green);
 }
 
 .noSelection {
@@ -111,14 +107,14 @@
   padding-top: 10px;
   border-top: 1px solid var(--border-color);
   span {
-    color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+    color: var(--primary-dark-green);
   }
 }
 
 .goToReservationButton {
   width: 100%;
   padding: 12px 20px;
-  background-color: var(--primary-dark-green); // Zmieniono na ciemnozielony
+  background-color: var(--primary-dark-green);
   color: white;
   border: none;
   border-radius: 5px;
@@ -128,7 +124,7 @@
   transition: background-color 0.3s ease, transform 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: var(--primary-dark-green-hover); // Zmieniono na ciemniejszy odcień zieleni
+    background-color: var(--primary-dark-green-hover);
     transform: translateY(-2px);
   }
 

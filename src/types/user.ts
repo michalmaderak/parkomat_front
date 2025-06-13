@@ -1,6 +1,5 @@
-// src/types/manager.ts (NOWY PLIK)
 export interface User {
-  manager_id: number; // lub string
+  manager_id: number;
   firstName: string;
   lastName: string;
   email: string;

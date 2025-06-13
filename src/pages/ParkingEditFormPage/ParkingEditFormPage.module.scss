@@ -1,24 +1,21 @@
-// src/pages/EditParkingPage/ParkingEditFormPage.module.scss
-
-// Zmienne kolorów
 $primary-color: #344B3C;
 $background-color: #f5f5f5;
 $border-color: #e0e0e0;
 $text-color: #333;
-$error-color: #dc3545; // Kolor dla błędów
-$success-color: #28a745; // Kolor dla sukcesu
-$button-hover-color: $primary-color, 10%; // Ciemniejszy odcień na hover
-$button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover dla anuluj
+$error-color: #dc3545;
+$success-color: #28a745;
+$button-hover-color: $primary-color, 10%;
+$button-cancel-hover-color: $border-color, 10%;
 
-// Kontener główny strony edycji parkingu
+
 .editParkingPageContainer {
   max-width: 800px;
-  margin: 40px auto; // Większy margines dla lepszego wyglądu
+  margin: 40px auto;
   padding: 30px;
-  background-color: #ffffff; // Białe tło dla formularza
+  background-color: #ffffff;
   border: 1px solid $border-color;
-  border-radius: 12px; // Lekko większy border-radius
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); // Delikatny cień
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   font-family: 'Arial', sans-serif;
   color: $text-color;
 
@@ -28,7 +25,7 @@ $button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover 
     margin-bottom: 30px;
     font-size: 2em;
     font-weight: bold;
-    border-bottom: 2px solid $primary-color; // Podkreślenie nagłówka
+    border-bottom: 2px solid $primary-color;
     padding-bottom: 15px;
   }
 }
@@ -37,16 +34,16 @@ $button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px; // Odstępy między grupami formularza
+  gap: 20px;
 }
 
 .formGroup {
-  margin-bottom: 0; // Już mamy gap w form, więc resetujemy margin-bottom
+  margin-bottom: 0; 
   label {
     display: block;
-    margin-bottom: 8px; // Większy odstęp między etykietą a polem
+    margin-bottom: 8px;
     font-size: 1.1em;
-    font-weight: 600; // Lekko pogrubiona etykieta
+    font-weight: 600; 
     color: $primary-color;
   }
 
@@ -55,23 +52,23 @@ $button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover 
   input[type="number"],
   textarea {
     width: 100%;
-    padding: 12px 15px; // Większy padding
+    padding: 12px 15px;
     border: 1px solid $border-color;
-    border-radius: 8px; // Zaokrąglone rogi pól
+    border-radius: 8px;
     font-size: 1em;
     color: $text-color;
-    background-color: $background-color; // Lekkie tło dla pól
+    background-color: $background-color;
 
     &:focus {
       outline: none;
-      border-color: $primary-color; // Podświetlenie na focus
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.2); // Delikatny cień na focus
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
     }
   }
 
   textarea {
     resize: vertical; // Pozwól użytkownikowi zmieniać wysokość
-    min-height: 100px; // Minimalna wysokość textarea
+    min-height: 100px;
   }
 }
 
@@ -79,7 +76,7 @@ $button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover 
 .placeGroupsSection {
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px dashed $border-color; // Delikatna linia rozdzielająca
+  border-top: 1px dashed $border-color;
 
   h2 {
     font-size: 1.6em;
@@ -97,7 +94,7 @@ $button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover 
   padding: 15px;
   border: 1px solid $border-color, 5%;
   border-radius: 8px;
-  background-color: $background-color, 3%; // Lżejsze tło dla pojedynczych grup
+  background-color: $background-color, 3%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 
   label {
@@ -135,10 +132,10 @@ $button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover 
   display: flex;
   justify-content: space-between;
   margin-top: 30px;
-  gap: 20px; // Odstęp między przyciskami
+  gap: 20px;
 
   button {
-    flex: 1; // Rozciągnij przyciski, aby zajęły dostępną przestrzeń
+    flex: 1;
     padding: 15px 25px;
     border: none;
     border-radius: 8px;
@@ -159,7 +156,7 @@ $button-cancel-hover-color: $border-color, 10%; // Ciemniejszy odcień na hover 
 
     &:not(:disabled):hover {
       background-color: $button-hover-color;
-      transform: translateY(-2px); // Lekkie uniesienie na hover
+      transform: translateY(-2px);
     }
   }
 

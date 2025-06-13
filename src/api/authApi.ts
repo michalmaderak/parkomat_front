@@ -1,7 +1,6 @@
-// src/api/authApi.ts
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api'; // Adjust to your backend URL
+const API_BASE_URL = 'http://localhost:8080/api';
 
 export interface RegisterData {
   firstName: string;
@@ -43,5 +42,3 @@ export const authApi = {
     }
   }
 };
-
-// Remove any .getAll() calls if they exist in your code

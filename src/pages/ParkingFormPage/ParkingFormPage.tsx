@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
 import styles from './ParkingFormPage.module.scss';
 
-// Typ dla stanu formularza
 interface FormState {
   park: string;
-  address: string; // Dodane pole adresu
+  address: string;
   parkingName: string;
   car: number;
   motorcycle: number;
@@ -14,7 +13,7 @@ interface FormState {
 const ParkingForm: React.FC = () => {
   const initialFormState: FormState = {
     park: '',
-    address: '', // Domyślnie pusty adres
+    address: '',
     parkingName: '',
     car: 0,
     motorcycle: 0,
@@ -38,7 +37,7 @@ const ParkingForm: React.FC = () => {
   };
 
   const handleReset = () => {
-    setFormState(initialFormState); // Resetuje WSZYSTKIE pola do wartości z initialFormState
+    setFormState(initialFormState);
     setFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";

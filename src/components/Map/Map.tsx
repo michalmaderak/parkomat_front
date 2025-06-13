@@ -3,11 +3,10 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapComponentProps } from "../../types/map";
-// Fix default marker icon issue in Leaflet + Webpack
+
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-// Set custom Leaflet marker icon
 const customIcon = new L.Icon({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
@@ -15,7 +14,6 @@ const customIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-// Define the type for marker props
 
 
 const MapComponent: React.FC<MapComponentProps> = ({ markers }) => {

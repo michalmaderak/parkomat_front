@@ -1,29 +1,26 @@
-// src/pages/LoginPage/LoginPage.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // Upewnij się, że ścieżka jest poprawna
-import axiosClient from '../../api/axiosClient'; // Zakładam, że używasz axiosClient do zapytań
-import { toast } from 'react-toastify'; // Jeśli używasz react-toastify
-import styles from './LoginPage.module.scss'; // Zmieniono nazwę pliku, żeby pasowała do przykładu
+import { useAuth } from '../../context/AuthContext';
+import axiosClient from '../../api/axiosClient';
+import { toast } from 'react-toastify';
+import styles from './LoginPage.module.scss';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const { login } = useAuth(); // Destrukturyzuj tylko funkcję login
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Zakładam, że Twój endpoint logowania zwraca token ORAZ userId
-      // Przykładowa odpowiedź z backendu: { token: '...', userId: '...' }
-      const response = await axiosClient.post('/auth/login', { email, password }); // Dostosuj endpoint do swojego backendu
-      const { token, userId } = response.data; // <<--- KLUCZOWA ZMIANA: Destrukturyzujemy zarówno token jak i userId
+      const response = await axiosClient.post('/auth/login', { email, password });
+      const { token, userId } = response.data; 
 
       if (token && userId) {
-        login(token, userId); // <<--- TUTAJ PRZEKAZUJEMY OBA ARGUMENTY
+        login(token, userId);
         toast.success('Zalogowano pomyślnie!');
-        navigate('/'); // Przekieruj na stronę główną lub inną po zalogowaniu
+        navigate('/');
       } else {
         toast.error('Błąd logowania: Brak tokenu lub ID użytkownika w odpowiedzi.');
       }
@@ -38,10 +35,10 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}> {/* Użycie klasy .container z SCSS */}
-      <h2 className={styles.title}>Logowanie</h2> {/* Użycie klasy .title z SCSS */}
-      <form onSubmit={handleSubmit} className={styles.form}> {/* Użycie klasy .form z SCSS */}
-        <div className={styles.formGroup}> {/* Użycie klasy .formGroup z SCSS */}
+    <div className={styles.container}>
+      <h2 className={styles.title}>Logowanie</h2> 
+      <form onSubmit={handleSubmit} className={styles.form}> 
+        <div className={styles.formGroup}> 
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -52,7 +49,7 @@ const LoginPage: React.FC = () => {
             className={styles.input}
           />
         </div>
-        <div className={styles.formGroup}> {/* Użycie klasy .formGroup z SCSS */}
+        <div className={styles.formGroup}>
           <label htmlFor="password">Hasło:</label>
           <input
             type="password"
@@ -63,7 +60,7 @@ const LoginPage: React.FC = () => {
             className={styles.input}
           />
         </div>
-        <button type="submit" className={styles.button}>Zaloguj</button> {/* Użycie klasy .button z SCSS */}
+        <button type="submit" className={styles.button}>Zaloguj</button>
       </form>
     </div>
   );

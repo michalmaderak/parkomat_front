@@ -1,11 +1,8 @@
-// src/pages/CancelReservationPage/CancelReservationPage.tsx
-
 import React, { useState } from "react";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
 import styles from "./CancelReservationPage.module.scss";
 
-// Adres bazowy Twojego backendu
-const API_BASE_URL = 'http://localhost:8080/api'; // Upewnij się, że to jest poprawny adres URL do Twojego backendu
+const API_BASE_URL = 'http://localhost:8080/api';
 
 const CancelReservationPage: React.FC = () => {
     const [reservationCode, setReservationCode] = useState<string>("");
@@ -26,17 +23,14 @@ const CancelReservationPage: React.FC = () => {
         }
 
         try {
-            // Bezpośrednie wywołanie funkcji fetch
+           
             const response = await fetch(`${API_BASE_URL}/reservations/${reservationCode}`, {
                 method: 'DELETE', // Metoda HTTP to DELETE
             });
 
-            // Sprawdzamy, czy odpowiedź jest pomyślna (status 2xx)
+            
             if (!response.ok) {
-                // Próbujemy sparsować odpowiedź JSON dla szczegółów błędu
-                // Używamy .catch(), aby uniknąć błędu, jeśli odpowiedź nie jest JSON-em
                 const errorData = await response.json().catch(() => ({ message: 'Nieznany błąd serwera.' }));
-                // Rzucamy błąd z odpowiednią wiadomością
                 throw new Error(errorData.message || response.statusText);
             }
 
